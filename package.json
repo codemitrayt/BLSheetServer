@@ -1,0 +1,24 @@
+{
+  "name": "bl-sheet-server",
+  "version": "1.0.0",
+  "description": "balance sheet backend service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codemitrayt/BLSheetServer.git"
+  },
+  "keywords": [
+    "typescript",
+    "node.js",
+    "backend"
+  ],
+  "author": "codemitrayt <codemitrayt@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/codemitrayt/BLSheetServer/issues"
+  },
+  "homepage": "https://github.com/codemitrayt/BLSheetServer#readme"
+}
