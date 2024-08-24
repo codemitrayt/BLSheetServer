@@ -35,6 +35,7 @@ const startServer = async () => {
 void startServer();
 
 app.use(express.json());
+app.use(express.static("public"));
 
 app.get("/", (req, res) => {
   return res.send("Hello from BLSheet backend!");
