@@ -4,7 +4,10 @@
   "description": "balance sheet backend service",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/index.ts"
+    "start": "node api/index.ts",
+    "dev": "nodemon api/index.ts",
+    "build": "tsc",
+    "vercel-build": "echo hello"
   },
   "repository": {
     "type": "git",
