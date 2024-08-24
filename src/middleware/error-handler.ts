@@ -9,7 +9,7 @@ const errorHandler = (
   next: NextFunction
 ) => {
   logger.error(error.message);
-  const statusCode = res.statusCode || error.status || 500;
+  const statusCode = error.statusCode || error.status || 500;
   return res.status(statusCode).json({
     errors: [
       {
