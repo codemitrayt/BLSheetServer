@@ -11,6 +11,10 @@ class AuthService {
   async createUser(user: User) {
     return await this.userModel.create(user);
   }
+
+  async findByUserId(userId: string) {
+    return await this.userModel.findById(userId);
+  }
 }
 
 export default AuthService;
