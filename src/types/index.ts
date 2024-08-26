@@ -1,14 +1,15 @@
 import { Request } from "express";
 import { JwtPayload } from "jsonwebtoken";
-import { Document } from "mongoose";
+import { Document, ObjectId } from "mongoose";
 
 export enum UserRoleType {
   ADMIN = "admin",
   CUSTOMER = "customer",
 }
 
-export interface CustomRequest<T> extends Request {
+export interface CustomRequest<T = null> extends Request {
   body: T;
+  userId?: string;
 }
 
 export type CustomModel<T> = T & Document;
@@ -48,4 +49,14 @@ export interface CreatePasswordBody {
 export interface LoginUserBody {
   email: string;
   password: string;
+}
+
+export interface BLSheet {
+  clientName: string;
+  description: string;
+  money: number;
+  isPaid: boolean;
+  tax: number;
+  date: Date;
+  userId: ObjectId;
 }
