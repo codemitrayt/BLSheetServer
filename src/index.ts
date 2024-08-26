@@ -5,7 +5,9 @@ import Config from "./config";
 import connectDB from "./config/db";
 import logger from "./config/logger";
 import errorHandler from "./middleware/error-handler";
+
 import authRouter from "./routes/auth-routes";
+import blSheetRoute from "./routes/bl-sheet-routes";
 
 const app = express();
 
@@ -42,6 +44,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/blSheet", blSheetRoute);
 app.use(errorHandler);
 
 export default app;
