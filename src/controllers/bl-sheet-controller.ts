@@ -4,7 +4,7 @@ import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 
 import BLSheetService from "../services/bl-sheet-service";
-import { BLSheet, CustomRequest } from "../types";
+import { BLSheet, CustomRequest, DeleteBLSheetBody } from "../types";
 import AuthService from "../services/auth-service";
 
 class BLSheetController {
@@ -43,6 +43,25 @@ class BLSheetController {
 
     const blSheets = await this.blSheetService.findBLSheetsByUserId(userId);
     return res.json({ message: { blSheets } });
+  }
+
+  async deleteBLSheet(
+    req: CustomRequest<DeleteBLSheetBody>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
+    const { objectId: blSheetId } = req.body;
+    const userId = req.userId as string;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(401, "Unauthorized"));
+
+    await this.blSheetService.deleteBLSheet(blSheetId, userId);
+    return res.json({ message: { deletedBlSheetId: blSheetId } });
   }
 }
 
