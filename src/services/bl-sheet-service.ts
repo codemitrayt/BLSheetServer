@@ -5,7 +5,7 @@ class BLSheetService {
   constructor(private blSheetModel: typeof BLSheetModel) {}
 
   async findBLSheetsByUserId(userId: string) {
-    return await this.blSheetModel.find({ userId });
+    return await this.blSheetModel.find({ userId }).sort({ date: -1 });
   }
 
   async createBLSheet(blSheet: BLSheet) {
