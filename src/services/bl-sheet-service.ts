@@ -23,6 +23,13 @@ class BLSheetService {
       })
       .populate("userId");
   }
+
+  async deleteBLSheet(blSheetId: string, userId: string) {
+    return await this.blSheetModel.deleteOne({
+      _id: blSheetId,
+      userId,
+    });
+  }
 }
 
 export default BLSheetService;

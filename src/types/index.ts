@@ -67,3 +67,7 @@ export interface BLSheet {
   userId: ObjectId;
   type: SheetType;
 }
+
+export interface DeleteBLSheetBody {
+  objectId: string;
+}
