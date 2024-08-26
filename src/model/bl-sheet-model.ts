@@ -38,6 +38,12 @@ const blSheetSchema = new Schema<CustomModel<BLSheet>>(
       ref: "User",
       required: true,
     },
+
+    type: {
+      type: String,
+      enum: ["investment", "income", "expense"],
+      required: true,
+    },
   },
 
   { timestamps: true }

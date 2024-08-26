@@ -7,6 +7,12 @@ export enum UserRoleType {
   CUSTOMER = "customer",
 }
 
+export enum SheetType {
+  INCOME = "income",
+  EXPENSE = "expense",
+  INVESTMENT = "investment",
+}
+
 export interface CustomRequest<T = null> extends Request {
   body: T;
   userId?: string;
@@ -59,4 +65,5 @@ export interface BLSheet {
   tax: number;
   date: Date;
   userId: ObjectId;
+  type: SheetType;
 }

@@ -1,4 +1,5 @@
 import { body } from "express-validator";
+import { SheetType } from "../types";
 
 const createBlSheetBodyValidator = [
   body("clientName")
@@ -37,6 +38,11 @@ const createBlSheetBodyValidator = [
     .isISO8601()
     .toDate()
     .withMessage("Date should be date type."),
+
+  body("type")
+    .exists()
+    .isIn(Object.values(SheetType))
+    .withMessage("Type should be valid sheet type"),
 ];
 
 export default createBlSheetBodyValidator;
