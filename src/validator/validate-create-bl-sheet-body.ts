@@ -43,6 +43,12 @@ const createBlSheetBodyValidator = [
     .exists()
     .isIn(Object.values(SheetType))
     .withMessage("Type should be valid sheet type"),
+
+  body("totalMoney")
+    .exists()
+    .withMessage("Total money should be required.")
+    .isNumeric()
+    .withMessage("Total money should be number."),
 ];
 
 export default createBlSheetBodyValidator;

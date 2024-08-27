@@ -66,6 +66,7 @@ export interface BLSheet {
   date: Date;
   userId: ObjectId;
   type: SheetType;
+  totalMoney: number;
 }
 
 export interface DeleteBLSheetBody {

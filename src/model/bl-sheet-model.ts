@@ -44,6 +44,11 @@ const blSheetSchema = new Schema<CustomModel<BLSheet>>(
       enum: ["investment", "income", "expense"],
       required: true,
     },
+
+    totalMoney: {
+      type: Number,
+      required: true,
+    },
   },
 
   { timestamps: true }
