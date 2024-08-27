@@ -1,4 +1,9 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, {
+  NextFunction,
+  Request,
+  RequestHandler,
+  Response,
+} from "express";
 
 import asyncFnHandler from "../utils/async-fn-handler";
 import BLSheetController from "../controllers/bl-sheet-controller";
@@ -37,6 +42,18 @@ blSheetRoute.delete(
   authenticateJWT,
   asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
     blSheetController.deleteBLSheet(req, res, next)
+  )
+);
+
+blSheetRoute.put(
+  "/editBLSheet",
+  [
+    validators.createBlSheetBodyValidator as unknown as RequestHandler,
+    validators.editBlSheetQueryValidator as unknown as RequestHandler,
+    authenticateJWT,
+  ],
+  asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
+    blSheetController.editBLSheet(req, res, next)
   )
 );
 
