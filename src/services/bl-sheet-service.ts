@@ -17,11 +17,9 @@ class BLSheetService {
   }
 
   async updateBLSheet(blSheetId: string, blSheet: BLSheet) {
-    return await this.blSheetModel
-      .findByIdAndUpdate(blSheetId, blSheet, {
-        new: true,
-      })
-      .populate("userId");
+    return await this.blSheetModel.findByIdAndUpdate(blSheetId, blSheet, {
+      new: true,
+    });
   }
 
   async deleteBLSheet(blSheetId: string, userId: string) {
@@ -29,6 +27,10 @@ class BLSheetService {
       _id: blSheetId,
       userId,
     });
+  }
+
+  async fingBySheetIdAndUserId(blSheetId: string, userId: string) {
+    return await this.blSheetModel.findOne({ _id: blSheetId, userId });
   }
 }
 
