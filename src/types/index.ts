@@ -72,3 +72,14 @@ export interface BLSheet {
 export interface DeleteBLSheetBody {
   objectId: string;
 }
+
+export interface GetBLSheetQueryParams {
+  search: string;
+  type: SheetType;
+  currentPage: number;
+  perPage: number;
+}
+
+export interface BLSheetFilters {
+  type?: SheetType;
+}
