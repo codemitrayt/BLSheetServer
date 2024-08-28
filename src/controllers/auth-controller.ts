@@ -13,6 +13,7 @@ import {
   CreatePasswordBody,
   CustomRequest,
   LoginUserBody,
+  SelfBody,
   SendVerificationEmailForRegistrationBody,
 } from "../types";
 
@@ -128,6 +129,23 @@ class AuthController {
     });
 
     return res.json({ message: { user, authToken: jwtToken } });
+  }
+
+  async self(req: CustomRequest<SelfBody>, res: Response, next: NextFunction) {
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
+    const { authToken } = req.body;
+
+    const token = await this.tokenService.verifyToken(authToken);
+    if (!token || !token.userId)
+      return next(createHttpError(401, "Unauthorized user"));
+
+    const user = await this.authService.findUserById(token.userId);
+    if (!user) return next(createHttpError(401, "Unauthorized user"));
+
+    return res.json({ message: { user, authToken } });
   }
 }
 

@@ -83,3 +83,7 @@ export interface GetBLSheetQueryParams {
 export interface BLSheetFilters {
   type?: SheetType;
 }
+
+export interface SelfBody {
+  authToken: string;
+}

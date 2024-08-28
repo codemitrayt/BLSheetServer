@@ -13,6 +13,7 @@ import {
   CreatePasswordBody,
   CustomRequest,
   LoginUserBody,
+  SelfBody,
   SendVerificationEmailForRegistrationBody,
 } from "../types";
 
@@ -57,6 +58,14 @@ authRouter.post(
   validators.loginUserBodyValidator,
   asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
     authController.login(req as CustomRequest<LoginUserBody>, res, next)
+  )
+);
+
+authRouter.post(
+  "/self",
+  validators.selfBodyValidator,
+  asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
+    authController.self(req as CustomRequest<SelfBody>, res, next)
   )
 );
 
