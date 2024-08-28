@@ -74,6 +74,37 @@ class BLSheetService {
   async fingBySheetIdAndUserId(blSheetId: string, userId: string) {
     return await this.blSheetModel.findOne({ _id: blSheetId, userId });
   }
+
+  async totalMoneyDistributedAnalytics(userId: string) {
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+        },
+      },
+      {
+        $group: {
+          _id: "$type",
+          total: {
+            $sum: "$totalMoney",
+          },
+        },
+      },
+      {
+        $addFields: {
+          type: "$_id",
+        },
+      },
+      {
+        $project: {
+          type: 1,
+          total: 1,
+          _id: 0,
+        },
+      },
+    ];
+    return await this.blSheetModel.aggregate(pipeline).exec();
+  }
 }
 
 export default BLSheetService;

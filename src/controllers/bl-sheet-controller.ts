@@ -102,6 +102,23 @@ class BLSheetController {
 
     return res.json({ message: { blSheet: updatedBlSheet } });
   }
+
+  async totalMoneyDistributedAnalytics(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req.userId as string;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(401, "Unauthorized"));
+
+    const matrics = await this.blSheetService.totalMoneyDistributedAnalytics(
+      userId
+    );
+
+    return res.json({ message: matrics });
+  }
 }
 
 export default BLSheetController;
