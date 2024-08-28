@@ -59,7 +59,7 @@ blSheetRoute.put(
 );
 
 blSheetRoute.get(
-  "/moneyDistributedAnalytics",
+  "/totalMoneyDistributedAnalytics",
   authenticateJWT,
   asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
     blSheetController.totalMoneyDistributedAnalytics(req, res, next)
