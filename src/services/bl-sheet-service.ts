@@ -1,11 +1,53 @@
+import mongoose, { PipelineStage } from "mongoose";
 import BLSheetModel from "../model/bl-sheet-model";
-import { BLSheet } from "../types";
+import { BLSheet, BLSheetFilters, GetBLSheetQueryParams } from "../types";
 
 class BLSheetService {
   constructor(private blSheetModel: typeof BLSheetModel) {}
 
-  async findBLSheetsByUserId(userId: string) {
-    return await this.blSheetModel.find({ userId }).sort({ date: -1 });
+  async findBLSheetsByUserId(userId: string, query: GetBLSheetQueryParams) {
+    const { search, type, currentPage, perPage } = query;
+    const searchQuery = new RegExp(search, "i");
+
+    const filters: BLSheetFilters = {};
+    if (type) filters.type = type;
+
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+          ...filters,
+          clientName: { $regex: searchQuery },
+        },
+      },
+      {
+        $sort: {
+          date: -1,
+        },
+      },
+      {
+        $facet: {
+          metadata: [{ $count: "totalCount" }],
+          blSheets: [
+            { $skip: (currentPage - 1) * perPage },
+            { $limit: perPage },
+          ],
+        },
+      },
+      {
+        $unwind: "$metadata",
+      },
+      {
+        $addFields: {
+          totalMoney: { $sum: "$blSheets.totalMoney" },
+          totalCount: "$metadata.totalCount",
+        },
+      },
+    ];
+
+    const result = await this.blSheetModel.aggregate(pipeline).exec();
+    if (result.length) return result[0];
+    return { metadata: { totalCount: 0 }, blSheets: [] };
   }
 
   async createBLSheet(blSheet: BLSheet) {
