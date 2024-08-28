@@ -30,6 +30,7 @@ blSheetRoute.post(
 
 blSheetRoute.get(
   "/getBLSheets",
+  validators.getBLSheetsQueryValidator,
   authenticateJWT,
   asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
     blSheetController.getBLSheets(req, res, next)
