@@ -96,6 +96,11 @@ class BLSheetService {
         },
       },
       {
+        $sort: {
+          type: -1,
+        },
+      },
+      {
         $project: {
           type: 1,
           total: 1,
