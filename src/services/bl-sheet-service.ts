@@ -6,7 +6,7 @@ class BLSheetService {
   constructor(private blSheetModel: typeof BLSheetModel) {}
 
   async findBLSheetsByUserId(userId: string, query: GetBLSheetQueryParams) {
-    const { search, type, currentPage, perPage } = query;
+    const { search, type, currentPage, perPage, startDate, endDate } = query;
     const searchQuery = new RegExp(search, "i");
 
     const filters: BLSheetFilters = {};
@@ -18,6 +18,8 @@ class BLSheetService {
           userId: new mongoose.Types.ObjectId(userId),
           ...filters,
           clientName: { $regex: searchQuery },
+          ...(startDate &&
+            endDate && { date: { $gte: startDate, $lt: endDate } }),
         },
       },
       {

@@ -38,6 +38,22 @@ const getBLSheetsQueryValidator = checkSchema(
         },
       },
     },
+
+    startDate: {
+      customSanitizer: {
+        options: (value) => {
+          return value ? new Date(value) : null;
+        },
+      },
+    },
+
+    endDate: {
+      customSanitizer: {
+        options: (value) => {
+          return value ? new Date(value) : null;
+        },
+      },
+    },
   },
   ["query"]
 );

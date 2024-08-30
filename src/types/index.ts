@@ -78,6 +78,8 @@ export interface GetBLSheetQueryParams {
   type: SheetType;
   currentPage: number;
   perPage: number;
+  startDate: Date;
+  endDate: Date;
 }
 
 export interface BLSheetFilters {
