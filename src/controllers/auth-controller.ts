@@ -1,17 +1,21 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
 
 import Config from "../config";
-import AuthService from "../services/auth-service";
-import NotificationService from "../services/notification-service";
-import TokenService from "../services/token-service";
-import HashService from "../services/hash-service";
-import getVerifcationEmailHTMLTemplate from "../html/get-verifcation-html-template";
+import htmlTemplates from "../html";
+import {
+  AuthService,
+  NotificationService,
+  TokenService,
+  HashService,
+} from "../services";
 
+import { URLS } from "../constants";
 import {
   CreatePasswordBody,
   CustomRequest,
+  EmailBody,
   LoginUserBody,
   SelfBody,
   SendVerificationEmailForRegistrationBody,
@@ -44,12 +48,14 @@ class AuthController {
       EXP
     );
 
-    const verificationLink = `${Config.CREATE_PASSWORD_FRONTEND_URL!}?token=${verifyEmailToken}`;
+    const verificationLink = `${Config.FRONTEND_URL!}/${
+      URLS.createPasswordUrl
+    }?token=${verifyEmailToken}`;
     await this.notificationService.send({
       to: email,
       text: "Send mail",
       subject: "BL Sheet create new password and verify email",
-      html: getVerifcationEmailHTMLTemplate({
+      html: htmlTemplates.verifyEmail({
         fullName,
         verificationLink,
       }),
@@ -57,7 +63,6 @@ class AuthController {
 
     return res.json({
       messsage: "Send verification email.",
-      token: verifyEmailToken,
     });
   }
 
@@ -146,6 +151,43 @@ class AuthController {
     if (!user) return next(createHttpError(401, "Unauthorized user"));
 
     return res.json({ message: { user, authToken } });
+  }
+
+  async forgotPassword(
+    req: CustomRequest<EmailBody>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
+    const { email } = req.body;
+    const user = await this.authService.findUserByEmail(email);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    const EXP = 1000 * 60 * 60;
+    const verifyEmailToken = await this.tokenService.signToken(
+      { userId: user._id as string },
+      EXP
+    );
+
+    const verificationLink = `${Config.FRONTEND_URL!}/${
+      URLS.resetPasswordUrl
+    }?token=${verifyEmailToken}`;
+    await this.notificationService.send({
+      to: email,
+      text: "Send mail",
+      subject: "BL Sheet create new password",
+      html: htmlTemplates.resetPassword({
+        fullName: user.fullName,
+        verificationLink,
+      }),
+    });
+
+    return res.json({
+      messsage: "Reset password verification email.",
+    });
   }
 }
 

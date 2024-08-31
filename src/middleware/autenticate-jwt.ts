@@ -1,7 +1,7 @@
 import { NextFunction, Response } from "express";
 import createHttpError from "http-errors";
 
-import TokenService from "../services/token-service";
+import { TokenService } from "../services";
 import { CustomRequest } from "../types";
 
 const jwtToken = new TokenService();

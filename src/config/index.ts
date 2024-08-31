@@ -10,8 +10,9 @@ const {
   MAIL_USERNAME,
   MAIL_PASSWORD,
   MAIL_FROM,
-  CREATE_PASSWORD_FRONTEND_URL,
   JWT_SECRET,
+  BACKEND_URL,
+  FRONTEND_URL,
 } = process.env;
 
 const Config = {
@@ -23,8 +24,9 @@ const Config = {
   MAIL_USERNAME,
   MAIL_PASSWORD,
   MAIL_FROM,
-  CREATE_PASSWORD_FRONTEND_URL,
   JWT_SECRET,
+  BACKEND_URL,
+  FRONTEND_URL,
 };
 
 export default Config;

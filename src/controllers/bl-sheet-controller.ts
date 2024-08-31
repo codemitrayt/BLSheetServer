@@ -3,14 +3,13 @@ import { Response, NextFunction } from "express";
 import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 
-import BLSheetService from "../services/bl-sheet-service";
+import { AuthService, BLSheetService } from "../services";
 import {
   BLSheet,
   CustomRequest,
   DeleteBLSheetBody,
   GetBLSheetQueryParams,
 } from "../types";
-import AuthService from "../services/auth-service";
 
 class BLSheetController {
   constructor(

@@ -1,5 +1,6 @@
 import mongoose, { PipelineStage } from "mongoose";
-import BLSheetModel from "../model/bl-sheet-model";
+
+import { BLSheetModel } from "../model";
 import { BLSheet, BLSheetFilters, GetBLSheetQueryParams } from "../types";
 
 class BLSheetService {

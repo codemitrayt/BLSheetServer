@@ -1,17 +1,20 @@
 import express, { NextFunction, Request, Response } from "express";
 
-import validators from "../validator";
-import UserModel from "../model/user-model";
 import asyncFnHandler from "../utils/async-fn-handler";
-import AuthController from "../controllers/auth-controller";
-import AuthService from "../services/auth-service";
-import NotificationService from "../services/notification-service";
-import TokenService from "../services/token-service";
-import HashService from "../services/hash-service";
-
+import validators from "../validator";
+import { UserModel } from "../model";
+import { AuthController } from "../controllers";
+import { authenticateJwt } from "../middleware";
+import {
+  AuthService,
+  NotificationService,
+  TokenService,
+  HashService,
+} from "../services";
 import {
   CreatePasswordBody,
   CustomRequest,
+  EmailBody,
   LoginUserBody,
   SelfBody,
   SendVerificationEmailForRegistrationBody,
@@ -64,8 +67,17 @@ authRouter.post(
 authRouter.post(
   "/self",
   validators.selfBodyValidator,
+  authenticateJwt,
   asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
     authController.self(req as CustomRequest<SelfBody>, res, next)
+  )
+);
+
+authRouter.post(
+  "/forgotPassword",
+  validators.forgotPasswordBodyValidator,
+  asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
+    authController.forgotPassword(req as CustomRequest<EmailBody>, res, next)
   )
 );
 

@@ -1,5 +1,6 @@
 import mongoose, { PipelineStage } from "mongoose";
-import UserModel from "../model/user-model";
+
+import { UserModel } from "../model";
 import { User } from "../types";
 
 class AuthService {

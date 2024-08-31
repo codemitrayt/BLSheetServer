@@ -6,13 +6,11 @@ import express, {
 } from "express";
 
 import asyncFnHandler from "../utils/async-fn-handler";
-import BLSheetController from "../controllers/bl-sheet-controller";
-import BLSheetService from "../services/bl-sheet-service";
-import BLSheetModel from "../model/bl-sheet-model";
-import authenticateJWT from "../middleware/autenticate-jwt";
-import AuthService from "../services/auth-service";
-import UserModel from "../model/user-model";
 import validators from "../validator";
+import { authenticateJwt } from "../middleware";
+import { BLSheetController } from "../controllers";
+import { BLSheetModel, UserModel } from "../model";
+import { BLSheetService, AuthService } from "../services";
 
 const blSheetRoute = express.Router();
 const blSheetService = new BLSheetService(BLSheetModel);
@@ -22,7 +20,7 @@ const blSheetController = new BLSheetController(blSheetService, authService);
 blSheetRoute.post(
   "/createBLSheet",
   validators.createBlSheetBodyValidator,
-  authenticateJWT,
+  authenticateJwt,
   asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
     blSheetController.createBLSheet(req, res, next)
   )
@@ -31,7 +29,7 @@ blSheetRoute.post(
 blSheetRoute.get(
   "/getBLSheets",
   validators.getBLSheetsQueryValidator,
-  authenticateJWT,
+  authenticateJwt,
   asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
     blSheetController.getBLSheets(req, res, next)
   )
@@ -40,7 +38,7 @@ blSheetRoute.get(
 blSheetRoute.delete(
   "/deleteBLSheet",
   validators.deleteBlSheetBodyValidator,
-  authenticateJWT,
+  authenticateJwt,
   asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
     blSheetController.deleteBLSheet(req, res, next)
   )
@@ -51,7 +49,7 @@ blSheetRoute.put(
   [
     validators.createBlSheetBodyValidator as unknown as RequestHandler,
     validators.editBlSheetQueryValidator as unknown as RequestHandler,
-    authenticateJWT,
+    authenticateJwt,
   ],
   asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
     blSheetController.editBLSheet(req, res, next)
@@ -60,7 +58,7 @@ blSheetRoute.put(
 
 blSheetRoute.get(
   "/totalMoneyDistributedAnalytics",
-  authenticateJWT,
+  authenticateJwt,
   asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
     blSheetController.totalMoneyDistributedAnalytics(req, res, next)
   )

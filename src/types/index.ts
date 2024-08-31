@@ -89,3 +89,7 @@ export interface BLSheetFilters {
 export interface SelfBody {
   authToken: string;
 }
+
+export interface EmailBody {
+  email: string;
+}

@@ -1,14 +1,16 @@
 import Config from "../config";
+
 interface PropTypes {
   fullName: string;
   verificationLink: string;
 }
 
-const getVerifcationEmailHTMLTemplate = ({
+const getResetPasswordHtmlTemplate = ({
   fullName,
   verificationLink,
 }: PropTypes) => {
-  return `<!DOCTYPE html>
+  return `
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -74,21 +76,21 @@ const getVerifcationEmailHTMLTemplate = ({
     <div class="container">
       <div class="divContainer">
         <img
-         src="${Config.BACKEND_URL}/bl-sheet.png"
+          src="${Config.BACKEND_URL}/bl-sheet.png"
           alt="img"
           style="height: 50px"
         />
         <h1>BL Sheet</h1>
       </div>
-      <h2>Verify your email & create password</h2>
+      <h2>Reset your Password</h2>
       <p>Hi ${fullName},</p>
+      <p>We've received a request to reset your password.</p>
       <p>
-        We're happy you signed up for BL Sheet. To start exploring the BL Sheet
-        App, please confirm your email address
+        If you didn't make the request, just ignore this message. Otherwise, you
+        can reset your password.
       </p>
-      <a href="${verificationLink}" class="button"
-        >Verify Email & Create Password</a
-      >
+      <p>The link below remain active for 1 hours.</p>
+      <a href="${verificationLink}" class="button">Reset Password</a>
       <div class="footer">
         <p>&copy; ${new Date().getFullYear()} BL Sheet. All rights reserved.</p>
       </div>
@@ -99,8 +101,7 @@ const getVerifcationEmailHTMLTemplate = ({
       </div>
     </div>
   </body>
-</html>
-`;
+</html>`;
 };
 
-export default getVerifcationEmailHTMLTemplate;
+export default getResetPasswordHtmlTemplate;
