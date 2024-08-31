@@ -1,4 +1,4 @@
 export const URLS = {
-  createPasswordUrl: "/auth/createPassword",
-  resetPasswordUrl: "/auth/resetPassword",
+  createPasswordUrl: "/auth/create-password",
+  resetPasswordUrl: "/auth/reset-password",
 };
