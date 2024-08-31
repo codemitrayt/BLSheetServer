@@ -48,7 +48,7 @@ class AuthController {
       EXP
     );
 
-    const verificationLink = `${Config.FRONTEND_URL!}/${
+    const verificationLink = `${Config.FRONTEND_URL!}${
       URLS.createPasswordUrl
     }?token=${verifyEmailToken}`;
     await this.notificationService.send({
@@ -172,7 +172,7 @@ class AuthController {
       EXP
     );
 
-    const verificationLink = `${Config.FRONTEND_URL!}/${
+    const verificationLink = `${Config.FRONTEND_URL!}${
       URLS.resetPasswordUrl
     }?token=${verifyEmailToken}`;
     await this.notificationService.send({
@@ -188,6 +188,50 @@ class AuthController {
     return res.json({
       messsage: "Reset password verification email.",
     });
+  }
+
+  async resetPassword(
+    req: CustomRequest<CreatePasswordBody>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
+    const { password, confirmPassword, token } = req.body;
+
+    if (password !== confirmPassword)
+      return next(
+        createHttpError(400, "Password and confirm password does not match.")
+      );
+
+    const user = await this.tokenService.verifyToken(token);
+    if (!user || !user.userId)
+      return next(createHttpError(400, "Invalid token"));
+
+    if ((user?.exp || 0) * 1000 <= Date.now())
+      return next(createHttpError(400, "Sorry, your token expired."));
+
+    const existedUser = await this.authService.findByUserId(
+      user?.userId as string
+    );
+    if (!existedUser) return next(createHttpError(400, "User not found!"));
+
+    const hashPassword = await this.hashService.hashData(password);
+    const updatedUser = await this.authService.updateUserPassword(
+      existedUser._id as string,
+      hashPassword
+    );
+
+    console.log(updatedUser);
+
+    const jwtToken = await this.tokenService.signToken({
+      userId: existedUser._id as string,
+      role: existedUser.role,
+    });
+
+    return res.json({ message: { user: existedUser, authToken: jwtToken } });
   }
 }
 

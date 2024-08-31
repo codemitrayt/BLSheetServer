@@ -81,4 +81,16 @@ authRouter.post(
   )
 );
 
+authRouter.post(
+  "/resetPassword",
+  validators.createPasswordBodyValidator,
+  asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
+    authController.resetPassword(
+      req as CustomRequest<CreatePasswordBody>,
+      res,
+      next
+    )
+  )
+);
+
 export default authRouter;

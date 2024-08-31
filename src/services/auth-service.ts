@@ -34,6 +34,16 @@ class AuthService {
     if (!user.length) return null;
     return user[0];
   }
+
+  async updateUserPassword(userId: string, password: string) {
+    return await this.userModel.findByIdAndUpdate(
+      userId,
+      { password },
+      {
+        new: true,
+      }
+    );
+  }
 }
 
 export default AuthService;
