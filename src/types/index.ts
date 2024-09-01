@@ -93,3 +93,25 @@ export interface SelfBody {
 export interface EmailBody {
   email: string;
 }
+
+/** TODO TYPES  */
+
+export enum TodoStatus {
+  COMPLETED = "completed",
+  IN_PROGRESS = "in_progress",
+  PENDING = "pending",
+}
+
+export enum TodoLevel {
+  EASY = "easy",
+  MEDIUM = "medium",
+  HARD = "hard",
+}
+
+export interface Todo {
+  title: string;
+  description: string;
+  status: TodoStatus;
+  userId: ObjectId;
+  level: TodoLevel;
+}
