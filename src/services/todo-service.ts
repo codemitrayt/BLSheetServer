@@ -4,8 +4,8 @@ import { Todo } from "../types";
 class TodoService {
   constructor(private todoModel: typeof TodoModel) {}
 
-  async getTodoById(todoId: string) {
-    return await this.todoModel.findById(todoId);
+  async getTodoByIdAndUserId(todoId: string, userId: string) {
+    return await this.todoModel.findOne({ userId, _id: todoId });
   }
 
   async getTodoList(userId: string) {
@@ -22,8 +22,8 @@ class TodoService {
     });
   }
 
-  async deleteTodo(todoId: string) {
-    return await this.todoModel.findByIdAndDelete(todoId);
+  async deleteTodo(todoId: string, userId: string) {
+    return await this.todoModel.findByIdAndDelete({ _id: todoId, userId });
   }
 }
 

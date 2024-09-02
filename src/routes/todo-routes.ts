@@ -6,7 +6,7 @@ import authenticateJWT from "../middleware/autenticate-jwt";
 import { TodoController } from "../controllers";
 import { AuthService, TodoService } from "../services";
 
-import { CustomRequest, Todo } from "../types";
+import { CustomRequest, DeleteTodoBody, Todo } from "../types";
 import { TodoModel, UserModel } from "../model";
 import validators from "../validator";
 
@@ -51,9 +51,10 @@ todoRouter.put(
 
 todoRouter.delete(
   "/deleteTodo",
+  validators.deleteObjectBodyValidator,
   authenticateJWT,
   asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
-    todoController.deleteTodo(req, res, next)
+    todoController.deleteTodo(req as CustomRequest<DeleteTodoBody>, res, next)
   )
 );
 

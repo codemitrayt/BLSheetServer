@@ -115,3 +115,7 @@ export interface Todo {
   userId: ObjectId;
   level: TodoLevel;
 }
+
+export interface DeleteTodoBody {
+  objectId: string;
+}

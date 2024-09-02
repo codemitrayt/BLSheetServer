@@ -3,7 +3,7 @@ import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
 
 import { AuthService, TodoService } from "../services";
-import { CustomRequest, Todo } from "../types";
+import { CustomRequest, DeleteTodoBody, Todo } from "../types";
 import { ObjectId } from "mongoose";
 
 class TodoController {
@@ -55,11 +55,47 @@ class TodoController {
     res: Response,
     next: NextFunction
   ) {
-    return res.json({ message: "Update Todo" });
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
+    const todo = req.body;
+    const userId = req.userId as string;
+    const todoId = req.query.objectId as string;
+
+    const existingTodo = await this.todoService.getTodoByIdAndUserId(
+      todoId,
+      userId
+    );
+    if (!existingTodo) return next(createHttpError(400, "Todo not found"));
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(401, "Unauthorized"));
+
+    const updatedTodo = await this.todoService.updateTodo(todoId, todo);
+
+    return res.json({ message: { todo: updatedTodo } });
   }
 
-  async deleteTodo(req: CustomRequest, res: Response, next: NextFunction) {
-    return res.json({ message: "Delete Todo" });
+  async deleteTodo(
+    req: CustomRequest<DeleteTodoBody>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
+    const { objectId: todoId } = req.body;
+    const userId = req.userId as string;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(401, "Unauthorized"));
+
+    await this.todoService.deleteTodo(todoId, userId);
+    return res.json({
+      message: { todoId, info: "Todo deleted successfully." },
+    });
   }
 }
 
