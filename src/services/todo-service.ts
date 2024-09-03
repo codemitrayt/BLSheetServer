@@ -1,3 +1,4 @@
+import mongoose, { PipelineStage } from "mongoose";
 import { TodoModel } from "../model";
 import { Todo } from "../types";
 
@@ -9,7 +10,47 @@ class TodoService {
   }
 
   async getTodoList(userId: string) {
-    return await this.todoModel.find({ userId });
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          status: 1,
+          level: 1,
+          createdAt: 1,
+          year: { $year: "$createdAt" },
+          month: { $month: "$createdAt" },
+          day: { $dayOfMonth: "$createdAt" },
+        },
+      },
+      {
+        $match: {
+          year: new Date().getFullYear(),
+          month: new Date().getMonth() + 1,
+          day: new Date().getDate(),
+        },
+      },
+      {
+        $project: {
+          year: 0,
+          month: 0,
+          day: 0,
+        },
+      },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+    ];
+
+    const result = await this.todoModel.aggregate(pipeline).exec();
+    return result;
   }
 
   async createTodo(todo: Todo) {
