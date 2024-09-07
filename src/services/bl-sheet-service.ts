@@ -53,6 +53,33 @@ class BLSheetService {
     return { metadata: { totalCount: 0 }, blSheets: [] };
   }
 
+  async dailyAnalytics(userId: string) {
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+        },
+      },
+      {
+        $project: {
+          type: 1,
+          money: 1,
+          tax: 1,
+          totalMoney: 1,
+          date: 1,
+        },
+      },
+      {
+        $sort: {
+          date: 1,
+        },
+      },
+    ];
+
+    const result = await this.blSheetModel.aggregate(pipeline).exec();
+    return result;
+  }
+
   async createBLSheet(blSheet: BLSheet) {
     return await this.blSheetModel.create(blSheet);
   }

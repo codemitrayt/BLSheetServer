@@ -64,4 +64,12 @@ blSheetRoute.get(
   )
 );
 
+blSheetRoute.get(
+  "/dailyAnalytics",
+  authenticateJwt,
+  asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
+    blSheetController.dailyAnalytics(req, res, next)
+  )
+);
+
 export default blSheetRoute;

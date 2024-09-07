@@ -1,6 +1,6 @@
+import createHttpError from "http-errors";
 import { ObjectId } from "mongoose";
 import { Response, NextFunction } from "express";
-import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
 
 import { AuthService, BLSheetService } from "../services";
@@ -117,6 +117,12 @@ class BLSheetController {
     );
 
     return res.json({ message: { matrics } });
+  }
+
+  async dailyAnalytics(req: CustomRequest, res: Response, next: NextFunction) {
+    const userId: string = req.userId as string;
+    const result = await this.blSheetService.dailyAnalytics(userId);
+    return res.json({ message: { matrics: result } });
   }
 }
 
