@@ -119,3 +119,7 @@ export interface Todo {
 export interface DeleteTodoBody {
   objectId: string;
 }
+
+export interface GetTodoListQueryParams {
+  date: Date;
+}

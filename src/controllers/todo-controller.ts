@@ -3,7 +3,12 @@ import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
 
 import { AuthService, TodoService } from "../services";
-import { CustomRequest, DeleteTodoBody, Todo } from "../types";
+import {
+  CustomRequest,
+  DeleteTodoBody,
+  GetTodoListQueryParams,
+  Todo,
+} from "../types";
 import { ObjectId } from "mongoose";
 
 class TodoController {
@@ -22,7 +27,10 @@ class TodoController {
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(401, "Unauthorized"));
 
-    const todoList = await this.todoService.getTodoList(userId);
+    const todoList = await this.todoService.getTodoList(
+      userId,
+      req.query as unknown as GetTodoListQueryParams
+    );
 
     return res.json({ message: { todoList } });
   }

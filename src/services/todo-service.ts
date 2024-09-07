@@ -1,6 +1,6 @@
 import mongoose, { PipelineStage } from "mongoose";
 import { TodoModel } from "../model";
-import { Todo } from "../types";
+import { GetTodoListQueryParams, Todo } from "../types";
 
 class TodoService {
   constructor(private todoModel: typeof TodoModel) {}
@@ -9,7 +9,9 @@ class TodoService {
     return await this.todoModel.findOne({ userId, _id: todoId });
   }
 
-  async getTodoList(userId: string) {
+  async getTodoList(userId: string, query: GetTodoListQueryParams) {
+    const date = query.date ? new Date(query.date) : new Date();
+
     const pipeline: PipelineStage[] = [
       {
         $match: {
@@ -23,16 +25,16 @@ class TodoService {
           status: 1,
           level: 1,
           createdAt: 1,
-          year: { $year: "$createdAt" },
-          month: { $month: "$createdAt" },
-          day: { $dayOfMonth: "$createdAt" },
+          year: { $year: "$updatedAt" },
+          month: { $month: "$updatedAt" },
+          day: { $dayOfMonth: "$updatedAt" },
         },
       },
       {
         $match: {
-          year: new Date().getFullYear(),
-          month: new Date().getMonth() + 1,
-          day: new Date().getDate(),
+          year: date.getFullYear(),
+          month: date.getMonth() + 1,
+          day: date.getDate(),
         },
       },
       {

@@ -25,6 +25,7 @@ todoRouter.get(
 
 todoRouter.get(
   "/getTodoList",
+  validators.getTodoListQueryValidator,
   authenticateJWT,
   asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
     todoController.getTodoList(req, res, next)

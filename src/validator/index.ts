@@ -11,6 +11,7 @@ import getBLSheetsQueryValidator from "./validate-get-bl-sheets-query";
 
 import todoValidator from "./validate-todo-body";
 import deleteObjectBodyValidator from "./validate-delete-object-body";
+import getTodoListQueryValidator from "./validate-get-todo-list-query";
 
 const validators = {
   loginUserBodyValidator,
@@ -26,6 +27,7 @@ const validators = {
 
   todoValidator,
   deleteObjectBodyValidator,
+  getTodoListQueryValidator,
 };
 
 export default validators;
