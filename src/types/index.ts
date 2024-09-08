@@ -123,3 +123,12 @@ export interface DeleteTodoBody {
 export interface GetTodoListQueryParams {
   date: Date;
 }
+
+/** Project Types */
+
+export interface Project {
+  name: string;
+  description: string;
+  userId: ObjectId;
+  tags: string[];
+}

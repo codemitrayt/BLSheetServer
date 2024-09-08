@@ -6,7 +6,12 @@ import connectDB from "./config/db";
 import logger from "./config/logger";
 import errorHandler from "./middleware/error-handler";
 
-import { authRoutes, todoRoutes, blSheetRoutes } from "./routes";
+import {
+  authRoutes,
+  todoRoutes,
+  blSheetRoutes,
+  projectRouters,
+} from "./routes";
 
 const app = express();
 
@@ -45,6 +50,7 @@ app.get("/", (req, res) => {
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/blSheet", blSheetRoutes);
 app.use("/api/v1/todo", todoRoutes);
+app.use("/api/v1/project", projectRouters);
 app.use(errorHandler);
 
 export default app;
