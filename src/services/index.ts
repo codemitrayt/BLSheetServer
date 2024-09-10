@@ -4,6 +4,7 @@ import TokenService from "./token-service";
 import HashService from "./hash-service";
 import NotificationService from "./notification-service";
 import TodoService from "./todo-service";
+import ProjectService from "./project-service";
 
 export {
   AuthService,
@@ -12,4 +13,5 @@ export {
   BLSheetService,
   NotificationService,
   TodoService,
+  ProjectService,
 };
