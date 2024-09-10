@@ -3,9 +3,14 @@ import express from "express";
 import { ProjectController } from "../controllers";
 import asyncFnHandler from "../utils/async-fn-handler";
 import authenticateJWT from "../middleware/autenticate-jwt";
+import { AuthService, ProjectService } from "../services";
+import { ProjectModel, UserModel } from "../model";
+import validators from "../validator";
 
 const projectRouter = express.Router();
-const projectController = new ProjectController();
+const authService = new AuthService(UserModel);
+const projectService = new ProjectService(ProjectModel);
+const projectController = new ProjectController(projectService, authService);
 
 projectRouter.get(
   "/getProject",
@@ -26,6 +31,7 @@ projectRouter.get(
 projectRouter.post(
   "/createProject",
   authenticateJWT,
+  validators.projectBodyValidator,
   asyncFnHandler((req, res, next) =>
     projectController.createProject(req, res, next)
   )
