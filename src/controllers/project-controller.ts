@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
+import { ObjectId } from "mongoose";
 
 import { AuthService, ProjectService } from "../services";
 import { CustomRequest, Project } from "../types";
-import { ObjectId } from "mongoose";
 
 class ProjectController {
   constructor(
@@ -12,12 +12,32 @@ class ProjectController {
     private authService: AuthService
   ) {}
 
-  getProject(req: Request, res: Response, next: NextFunction) {
-    return res.json({ message: "Get Project" });
+  async getProject(req: CustomRequest, res: Response, next: NextFunction) {
+    const userId = req.userId as string;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(401, "Unauthorized"));
+
+    const result = await this.projectService.getProjectList(userId);
+    return res.json({
+      message: {
+        projects: result,
+      },
+    });
   }
 
-  getProjectList(req: Request, res: Response, next: NextFunction) {
-    return res.json({ message: "Get Project List" });
+  async getProjectList(req: CustomRequest, res: Response, next: NextFunction) {
+    const userId = req.userId as string;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(401, "Unauthorized"));
+
+    const result = await this.projectService.getProjectList(userId);
+    return res.json({
+      message: {
+        projects: result,
+      },
+    });
   }
 
   async createProject(
