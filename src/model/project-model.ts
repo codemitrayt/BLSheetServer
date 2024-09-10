@@ -1,5 +1,6 @@
 import { Model, model, Schema } from "mongoose";
 import { CustomModel, Project } from "../types";
+import Config from "../config";
 
 const projectSchema = new Schema<CustomModel<Project>>(
   {
@@ -22,6 +23,12 @@ const projectSchema = new Schema<CustomModel<Project>>(
     tags: {
       type: [String],
       required: true,
+    },
+
+    img: {
+      type: String,
+      required: false,
+      default: `${Config.BACKEND_URL}/project-img.jpg`,
     },
   },
 
