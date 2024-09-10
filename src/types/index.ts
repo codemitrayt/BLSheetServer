@@ -131,4 +131,5 @@ export interface Project {
   description: string;
   userId: ObjectId;
   tags: string[];
+  img: string;
 }
