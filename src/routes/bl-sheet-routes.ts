@@ -48,7 +48,7 @@ blSheetRoute.put(
   "/editBLSheet",
   [
     validators.createBlSheetBodyValidator as unknown as RequestHandler,
-    validators.editBlSheetQueryValidator as unknown as RequestHandler,
+    validators.objectIdQueryValidator as unknown as RequestHandler,
     authenticateJwt,
   ],
   asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
