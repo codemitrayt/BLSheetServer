@@ -39,6 +39,8 @@ projectRouter.post(
 
 projectRouter.put(
   "/updateProject",
+  validators.projectBodyValidator,
+  validators.objectIdQueryValidator,
   authenticateJWT,
   asyncFnHandler((req, res, next) =>
     projectController.updateProject(req, res, next)
@@ -47,6 +49,8 @@ projectRouter.put(
 
 projectRouter.delete(
   "/deleteProject",
+  authenticateJWT,
+  validators.deleteObjectBodyValidator,
   asyncFnHandler((req, res, next) =>
     projectController.deleteProject(req, res, next)
   )
