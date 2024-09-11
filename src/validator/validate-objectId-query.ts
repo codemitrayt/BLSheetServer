@@ -1,7 +1,7 @@
 import { query } from "express-validator";
 
-const editBlSheetQueryValidator = [
+const objectIdQueryValidator = [
   query("objectId").exists().withMessage("objectId should be required."),
 ];
 
-export default editBlSheetQueryValidator;
+export default objectIdQueryValidator;
