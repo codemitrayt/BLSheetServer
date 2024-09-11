@@ -6,12 +6,13 @@ import forgotPasswordBodyValidator from "./validate-forgot-password-body";
 
 import createBlSheetBodyValidator from "./validate-create-bl-sheet-body";
 import deleteBlSheetBodyValidator from "./validate-delete-bl-sheet-body";
-import editBlSheetQueryValidator from "./validate-edit-bl-sheet-query";
+import objectIdQueryValidator from "./validate-objectId-query";
 import getBLSheetsQueryValidator from "./validate-get-bl-sheets-query";
 
 import todoValidator from "./validate-todo-body";
 import deleteObjectBodyValidator from "./validate-delete-object-body";
 import getTodoListQueryValidator from "./validate-get-todo-list-query";
+
 import projectBodyValidator from "./validate-project-body";
 
 const validators = {
@@ -23,7 +24,7 @@ const validators = {
 
   createBlSheetBodyValidator,
   deleteBlSheetBodyValidator,
-  editBlSheetQueryValidator,
+  objectIdQueryValidator,
   getBLSheetsQueryValidator,
 
   todoValidator,
