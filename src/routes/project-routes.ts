@@ -6,6 +6,7 @@ import authenticateJWT from "../middleware/autenticate-jwt";
 import { AuthService, ProjectService } from "../services";
 import { ProjectModel, UserModel } from "../model";
 import validators from "../validator";
+import { CustomRequest } from "../types";
 
 const projectRouter = express.Router();
 const authService = new AuthService(UserModel);
@@ -15,8 +16,9 @@ const projectController = new ProjectController(projectService, authService);
 projectRouter.get(
   "/getProject",
   authenticateJWT,
+  validators.objectIdQueryValidator,
   asyncFnHandler((req, res, next) =>
-    projectController.getProject(req, res, next)
+    projectController.getProject(req as CustomRequest, res, next)
   )
 );
 
