@@ -18,7 +18,7 @@ class ProjectController {
       return next(createHttpError(400, result.array()[0].msg as string));
 
     const userId = req.userId as string;
-    const projectId = req.query.objectId as string;
+    const projectId = req.params.objectId as string;
 
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(401, "Unauthorized"));
