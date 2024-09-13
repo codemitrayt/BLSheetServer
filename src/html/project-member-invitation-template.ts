@@ -85,7 +85,7 @@ const projectMemberInvitationTemplate = ({
         />
         <h1>BL Sheet</h1>
       </div>
-      <h2>Verify your email & create password</h2>
+      <h2>Invitation from ${projectName}</h2>
       <p>Hi ${email},</p>
       <p>
       ${inviteSenderName} with BL Sheet has invited you to use ${projectName} to collaborate with them. Use the button below to accept invitation and get started:
