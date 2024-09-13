@@ -1,4 +1,4 @@
-import { ObjectId } from "mongoose";
+import mongoose, { PipelineStage } from "mongoose";
 import { ProjectModel } from "../model";
 import { Project } from "../types";
 
@@ -11,6 +11,38 @@ class ProjectService {
 
   async getProjectList(userId: string) {
     return this.projectModel.find({ userId });
+  }
+
+  async getProjectListFromUserProjectArray(userId: string) {
+    const pipeline: PipelineStage[] = [
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+      {
+        $lookup: {
+          from: "Project",
+          localField: "projects",
+          foreignField: "_id",
+          as: "projects",
+        },
+      },
+      {
+        $addFields: {
+          isAdmin: { $eq: ["$userId", userId] },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          description: 1,
+          img: 1,
+          tags: 1,
+          isAdmin: 1,
+        },
+      },
+    ];
+    const results = await this.projectModel.aggregate(pipeline).exec();
+    if (results.length > 0) return results;
+    return [];
   }
 
   async createProject(project: Project) {
