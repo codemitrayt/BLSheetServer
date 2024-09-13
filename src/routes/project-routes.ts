@@ -4,15 +4,27 @@ import asyncFnHandler from "../utils/async-fn-handler";
 import authenticateJWT from "../middleware/autenticate-jwt";
 import validators from "../validator";
 
-import { AuthService, ProjectService } from "../services";
+import {
+  AuthService,
+  NotificationService,
+  ProjectService,
+  TokenService,
+} from "../services";
 import { ProjectModel, UserModel } from "../model";
 import { ProjectController } from "../controllers";
-import { CustomRequest } from "../types";
+import { CustomRequest, InviteTeamMemberType } from "../types";
 
 const projectRouter = express.Router();
 const authService = new AuthService(UserModel);
 const projectService = new ProjectService(ProjectModel);
-const projectController = new ProjectController(projectService, authService);
+const notificationService = new NotificationService();
+const tokenService = new TokenService();
+const projectController = new ProjectController(
+  projectService,
+  authService,
+  tokenService,
+  notificationService
+);
 
 projectRouter.get(
   "/getProject",
@@ -56,6 +68,19 @@ projectRouter.delete(
   validators.deleteObjectBodyValidator,
   asyncFnHandler((req, res, next) =>
     projectController.deleteProject(req, res, next)
+  )
+);
+
+projectRouter.post(
+  "/inviteTeamMember",
+  authenticateJWT,
+  validators.inviteProjectMemberValidator,
+  asyncFnHandler((req, res, next) =>
+    projectController.inviteTeamMember(
+      req as CustomRequest<InviteTeamMemberType>,
+      res,
+      next
+    )
   )
 );
 
