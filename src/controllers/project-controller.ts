@@ -3,14 +3,25 @@ import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
 import { ObjectId } from "mongoose";
 
-import { AuthService, ProjectService } from "../services";
-import { CustomRequest, Project } from "../types";
+import {
+  AuthService,
+  NotificationService,
+  ProjectService,
+  TokenService,
+} from "../services";
+import Config from "../config";
+import htmlTemplates from "../html";
+
+import { URLS } from "../constants";
 import logger from "../config/logger";
+import { CustomRequest, InviteTeamMemberType, Project } from "../types";
 
 class ProjectController {
   constructor(
     private projectService: ProjectService,
-    private authService: AuthService
+    private authService: AuthService,
+    private tokenService: TokenService,
+    private notificationService: NotificationService
   ) {}
 
   async getProject(req: CustomRequest, res: Response, next: NextFunction) {
@@ -135,6 +146,48 @@ class ProjectController {
 
     await this.projectService.deleteProject(projectId, userId);
     return res.json({ message: { deletedProject: projectId } });
+  }
+
+  async inviteTeamMember(
+    req: CustomRequest<InviteTeamMemberType>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
+    const userId = req.userId as string;
+    const { email, projectId } = req.body;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(401, "Unauthorized"));
+
+    const project = await this.projectService.getProject(projectId, userId);
+    if (!project) return next(createHttpError(400, "Project not found"));
+
+    const inviteToken = await this.tokenService.signToken(
+      { email, projectId },
+      "7 days"
+    );
+
+    const invitationLink = `${Config.FRONTEND_URL!}${
+      URLS.inviteUrl
+    }?invitationToken=${inviteToken}&projectName=${project.name}`;
+
+    await this.notificationService.send({
+      to: email,
+      text: "Invitation Email",
+      subject: `Invitation from ${project.name}`,
+      html: htmlTemplates.inviteProjectMember({
+        inviteSenderName: user.fullName,
+        link: invitationLink,
+        projectName: project.name,
+        email,
+      }),
+    });
+
+    return res.json({ message: "Successfully sent invitation to user email." });
   }
 }
 
