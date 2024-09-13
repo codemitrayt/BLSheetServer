@@ -134,3 +134,16 @@ export interface Project {
   tags: string[];
   img: string;
 }
+
+/** Project Members */
+
+export interface ProjectMember {
+  memberEmailId: string;
+  userId: ObjectId;
+  projectId: ObjectId;
+}
+
+export interface InviteTeamMemberType {
+  email: string;
+  projectId: string;
+}
