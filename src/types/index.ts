@@ -30,6 +30,7 @@ export interface User {
   email: string;
   password?: string;
   role?: UserRoleType;
+  projects?: ObjectId[];
 }
 
 export interface Message {
