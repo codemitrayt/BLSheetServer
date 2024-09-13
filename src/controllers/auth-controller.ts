@@ -224,8 +224,6 @@ class AuthController {
       hashPassword
     );
 
-    console.log(updatedUser);
-
     const jwtToken = await this.tokenService.signToken({
       userId: existedUser._id as string,
       role: existedUser.role,
