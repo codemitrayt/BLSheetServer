@@ -67,7 +67,7 @@ const projectMemberInvitationTemplate = ({
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
+        width: 100%;
       }
       h1 {
         color: #2f667f;
@@ -77,7 +77,7 @@ const projectMemberInvitationTemplate = ({
   </head>
   <body>
     <div class="container">
-      <div class="divContainer">
+      <div style="display: flex; align-items: center; justify-content: center;width: 100%;">
         <img
          src="${Config.BACKEND_URL}/bl-sheet.png"
           alt="img"
