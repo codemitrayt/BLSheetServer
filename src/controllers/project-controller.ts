@@ -40,7 +40,18 @@ class ProjectController {
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(401, "Unauthorized"));
 
-    const result = await this.projectService.getProjectList(userId);
+    if (!user.projects) {
+      return res.json({
+        message: {
+          projects: [],
+        },
+      });
+    }
+
+    const result = await this.projectService.getProjectListFromUserProjectArray(
+      user._id as string
+    );
+
     return res.json({
       message: {
         projects: result,
@@ -67,6 +78,8 @@ class ProjectController {
       ...project,
       userId: userId as unknown as ObjectId,
     });
+
+    await this.authService.addProject(userId, newProject._id as string);
 
     return res.json({
       message: {
