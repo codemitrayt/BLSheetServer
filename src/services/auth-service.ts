@@ -44,6 +44,14 @@ class AuthService {
       }
     );
   }
+
+  async addProject(userId: string, projectId: string) {
+    return await this.userModel.findByIdAndUpdate(
+      { _id: new mongoose.Types.ObjectId(userId) },
+      { $push: { projects: new mongoose.Types.ObjectId(projectId) } },
+      { new: true }
+    );
+  }
 }
 
 export default AuthService;
