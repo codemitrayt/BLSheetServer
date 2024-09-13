@@ -14,6 +14,7 @@ import deleteObjectBodyValidator from "./validate-delete-object-body";
 import getTodoListQueryValidator from "./validate-get-todo-list-query";
 
 import projectBodyValidator from "./validate-project-body";
+import inviteProjectMemberValidator from "./validate-invite-project-member-body";
 
 const validators = {
   loginUserBodyValidator,
@@ -32,6 +33,7 @@ const validators = {
   getTodoListQueryValidator,
 
   projectBodyValidator,
+  inviteProjectMemberValidator,
 };
 
 export default validators;
