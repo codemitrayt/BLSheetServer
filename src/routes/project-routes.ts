@@ -1,11 +1,12 @@
 import express from "express";
 
-import { ProjectController } from "../controllers";
 import asyncFnHandler from "../utils/async-fn-handler";
 import authenticateJWT from "../middleware/autenticate-jwt";
+import validators from "../validator";
+
 import { AuthService, ProjectService } from "../services";
 import { ProjectModel, UserModel } from "../model";
-import validators from "../validator";
+import { ProjectController } from "../controllers";
 import { CustomRequest } from "../types";
 
 const projectRouter = express.Router();
