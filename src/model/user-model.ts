@@ -24,6 +24,12 @@ const userShecma = new Schema<CustomModel<User>>(
       type: String,
       required: true,
     },
+
+    projects: {
+      type: [Schema.Types.ObjectId],
+      ref: "Project",
+      required: false,
+    },
   },
 
   { timestamps: true }
