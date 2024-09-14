@@ -6,6 +6,7 @@ import { ObjectId } from "mongoose";
 import {
   AuthService,
   NotificationService,
+  ProjectMemberService,
   ProjectService,
   TokenService,
 } from "../services";
@@ -14,14 +15,20 @@ import htmlTemplates from "../html";
 
 import { URLS } from "../constants";
 import logger from "../config/logger";
-import { CustomRequest, InviteTeamMemberType, Project } from "../types";
+import {
+  CustomRequest,
+  InviteTeamMemberType,
+  Project,
+  ProjectMemberStatus,
+} from "../types";
 
 class ProjectController {
   constructor(
     private projectService: ProjectService,
     private authService: AuthService,
     private tokenService: TokenService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private projectMemberService: ProjectMemberService
   ) {}
 
   async getProject(req: CustomRequest, res: Response, next: NextFunction) {
@@ -163,8 +170,34 @@ class ProjectController {
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(401, "Unauthorized"));
 
+    if (email === user.email) {
+      return next(createHttpError(400, "Can't invite yourself"));
+    }
+
     const project = await this.projectService.getProject(projectId, userId);
     if (!project) return next(createHttpError(400, "Project not found"));
+
+    const hasInvited = await this.projectMemberService.getProjectMember(
+      projectId,
+      email
+    );
+
+    if (hasInvited && hasInvited.status === ProjectMemberStatus.ACCEPTED) {
+      return res.json({
+        message: `${email} this user accepted the project invitation already`,
+      });
+    }
+
+    if (!hasInvited) {
+      const invitedUser = await this.authService.findUserByEmail(email);
+
+      await this.projectMemberService.addProjectMember({
+        memberEmailId: email,
+        projectId: projectId as unknown as ObjectId,
+        status: ProjectMemberStatus.PENDING,
+        ...(invitedUser && { userId: invitedUser._id as unknown as ObjectId }),
+      });
+    }
 
     const inviteToken = await this.tokenService.signToken(
       { email, projectId },
