@@ -17,7 +17,7 @@ import { CustomRequest, InviteTeamMemberType } from "../types";
 
 const projectRouter = express.Router();
 const authService = new AuthService(UserModel);
-const projectService = new ProjectService(ProjectModel, UserModel);
+const projectService = new ProjectService(ProjectModel);
 const notificationService = new NotificationService();
 const tokenService = new TokenService();
 const projectMemberService = new ProjectMemberService(ProjectMemberModel);
