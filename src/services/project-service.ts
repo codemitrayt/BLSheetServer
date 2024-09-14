@@ -31,9 +31,9 @@ class ProjectService {
           tags: 1,
           img: 1,
           user: {
+            _id: "$user._id",
             fullName: "$user.fullName",
             email: "$user.email",
-            role: "$user.role",
           },
         },
       },
