@@ -15,6 +15,8 @@ import getTodoListQueryValidator from "./validate-get-todo-list-query";
 
 import projectBodyValidator from "./validate-project-body";
 import inviteProjectMemberValidator from "./validate-invite-project-member-body";
+import objectIdBodyValidator from "./validate-objectId-body";
+import updateProjectMemberValidator from "./validate-update-project-member-body";
 
 const validators = {
   loginUserBodyValidator,
@@ -26,6 +28,7 @@ const validators = {
   createBlSheetBodyValidator,
   deleteBlSheetBodyValidator,
   objectIdQueryValidator,
+  objectIdBodyValidator,
   getBLSheetsQueryValidator,
 
   todoValidator,
@@ -34,6 +37,7 @@ const validators = {
 
   projectBodyValidator,
   inviteProjectMemberValidator,
+  updateProjectMemberValidator,
 };
 
 export default validators;
