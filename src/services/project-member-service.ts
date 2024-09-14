@@ -4,6 +4,10 @@ import { ProjectMember } from "../types";
 class ProjectMemberService {
   constructor(private projectMemberModel: typeof ProjectMemberModel) {}
 
+  async getProjectMemberById(memberId: string) {
+    return await this.projectMemberModel.findById(memberId);
+  }
+
   async getProjectMembers(projectId: string) {
     return await this.projectMemberModel.find({ projectId });
   }
@@ -17,6 +21,19 @@ class ProjectMemberService {
       projectId,
       memberEmailId: email,
     });
+  }
+
+  async updateProjectMember(
+    projectMemberId: string,
+    projectMember: ProjectMember
+  ) {
+    return await this.projectMemberModel.findByIdAndUpdate(
+      projectMemberId,
+      projectMember,
+      {
+        new: true,
+      }
+    );
   }
 }
 
