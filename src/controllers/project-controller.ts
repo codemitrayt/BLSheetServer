@@ -46,7 +46,7 @@ class ProjectController {
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(401, "Unauthorized"));
 
-    const project = await this.projectService.getProjectById(projectId);
+    const project = await this.projectService.getProjectById(projectId, userId);
     return res.json({
       message: {
         project,
@@ -69,7 +69,8 @@ class ProjectController {
     }
 
     const result = await this.projectService.getProjectListFromUserProjectArray(
-      user.projects
+      user.projects,
+      userId
     );
 
     return res.json({
@@ -258,7 +259,7 @@ class ProjectController {
       return next(createHttpError(400, "Unauthorized to view project members"));
     }
 
-    const project = await this.projectService.getProjectById(projectId);
+    const project = await this.projectService.getProjectById(projectId, userId);
     if (!project) return next(createHttpError(400, "Project not found"));
 
     const projectMembers = await this.projectMemberService.getProjectMembers(
