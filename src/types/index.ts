@@ -154,3 +154,13 @@ export interface InviteTeamMemberType {
   email: string;
   projectId: string;
 }
+
+export interface ObjectIdBody {
+  objectId: string;
+}
+
+export interface UpdateTeamMember {
+  status: ProjectMemberStatus;
+  memberEmailId: string;
+  invitationToken: string;
+}
