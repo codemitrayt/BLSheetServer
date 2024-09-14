@@ -137,10 +137,17 @@ export interface Project {
 
 /** Project Members */
 
+export enum ProjectMemberStatus {
+  PENDING = "pending",
+  ACCEPTED = "accepted",
+  REJECTED = "rejected",
+}
+
 export interface ProjectMember {
   memberEmailId: string;
-  userId: ObjectId;
+  userId?: ObjectId;
   projectId: ObjectId;
+  status: ProjectMemberStatus;
 }
 
 export interface InviteTeamMemberType {
