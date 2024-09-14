@@ -1,27 +1,99 @@
-import mongoose, { ObjectId, PipelineStage } from "mongoose";
-import { ProjectModel, UserModel } from "../model";
+import mongoose, { mongo, ObjectId } from "mongoose";
+import { ProjectModel } from "../model";
 import { Project } from "../types";
 
 class ProjectService {
-  constructor(
-    private projectModel: typeof ProjectModel,
-    private userModel: typeof UserModel
-  ) {}
+  constructor(private projectModel: typeof ProjectModel) {}
 
   async getProject(projectId: string, userId: string) {
     return this.projectModel.findOne({ _id: projectId, userId });
   }
 
-  async getProjectById(projectId: string) {
-    return this.projectModel.findById(projectId);
+  async getProjectById(projectId: string, userId: string) {
+    const result = await this.projectModel.aggregate([
+      {
+        $match: { _id: new mongoose.Types.ObjectId(projectId) },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          description: 1,
+          tags: 1,
+          img: 1,
+          user: {
+            fullName: "$user.fullName",
+            email: "$user.email",
+            role: "$user.role",
+          },
+        },
+      },
+      {
+        $addFields: {
+          isAdmin: { $eq: ["$user._id", new mongoose.Types.ObjectId(userId)] },
+        },
+      },
+    ]);
+
+    if (result.length) return result[0];
+    return null;
   }
 
   async getProjectList(userId: string) {
     return this.projectModel.find({ userId });
   }
 
-  async getProjectListFromUserProjectArray(projects: ObjectId[]) {
-    return await this.projectModel.find({ _id: { $in: projects } });
+  async getProjectListFromUserProjectArray(
+    projects: ObjectId[],
+    userId: string
+  ) {
+    return await this.projectModel.aggregate([
+      {
+        $match: {
+          _id: { $in: projects },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $unwind: "$user",
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          description: 1,
+          userId: 1,
+          tags: 1,
+          img: 1,
+          user: {
+            _id: "$user._id",
+            fullName: "$user.fullName",
+            email: "$user.email",
+          },
+        },
+      },
+      {
+        $addFields: {
+          isAdmin: { $eq: ["$user._id", new mongoose.Types.ObjectId(userId)] },
+        },
+      },
+    ]);
   }
 
   async createProject(project: Project) {
