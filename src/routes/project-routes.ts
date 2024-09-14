@@ -7,10 +7,11 @@ import validators from "../validator";
 import {
   AuthService,
   NotificationService,
+  ProjectMemberService,
   ProjectService,
   TokenService,
 } from "../services";
-import { ProjectModel, UserModel } from "../model";
+import { ProjectMemberModel, ProjectModel, UserModel } from "../model";
 import { ProjectController } from "../controllers";
 import { CustomRequest, InviteTeamMemberType } from "../types";
 
@@ -19,11 +20,13 @@ const authService = new AuthService(UserModel);
 const projectService = new ProjectService(ProjectModel);
 const notificationService = new NotificationService();
 const tokenService = new TokenService();
+const projectMemberService = new ProjectMemberService(ProjectMemberModel);
 const projectController = new ProjectController(
   projectService,
   authService,
   tokenService,
-  notificationService
+  notificationService,
+  projectMemberService
 );
 
 projectRouter.get(
