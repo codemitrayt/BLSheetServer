@@ -17,7 +17,7 @@ import { CustomRequest, InviteTeamMemberType } from "../types";
 
 const projectRouter = express.Router();
 const authService = new AuthService(UserModel);
-const projectService = new ProjectService(ProjectModel);
+const projectService = new ProjectService(ProjectModel, UserModel);
 const notificationService = new NotificationService();
 const tokenService = new TokenService();
 const projectMemberService = new ProjectMemberService(ProjectMemberModel);
@@ -84,6 +84,24 @@ projectRouter.post(
       res,
       next
     )
+  )
+);
+
+projectRouter.post(
+  "/getProjectMembers",
+  authenticateJWT,
+  validators.objectIdBodyValidator,
+  asyncFnHandler((req, res, next) =>
+    projectController.getProjectMembers(req, res, next)
+  )
+);
+
+projectRouter.put(
+  "/updateProjectMember",
+  authenticateJWT,
+  validators.updateProjectMemberValidator,
+  asyncFnHandler((req, res, next) =>
+    projectController.updateProjectMember(req, res, next)
   )
 );
 
