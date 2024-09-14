@@ -11,12 +11,18 @@ const projectMemberSchema = new Schema<CustomModel<ProjectMember>>(
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
     },
 
     projectId: {
       type: Schema.Types.ObjectId,
       ref: "Project",
+      required: true,
+    },
+
+    status: {
+      type: String,
+      enum: ["pending", "accepted", "rejected"],
       required: true,
     },
   },
