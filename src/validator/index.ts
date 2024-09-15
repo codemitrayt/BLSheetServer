@@ -17,6 +17,7 @@ import projectBodyValidator from "./validate-project-body";
 import inviteProjectMemberValidator from "./validate-invite-project-member-body";
 import objectIdBodyValidator from "./validate-objectId-body";
 import updateProjectMemberValidator from "./validate-update-project-member-body";
+import projectTaskBodyValidator from "./validate-project-task-body";
 
 const validators = {
   loginUserBodyValidator,
@@ -38,6 +39,7 @@ const validators = {
   projectBodyValidator,
   inviteProjectMemberValidator,
   updateProjectMemberValidator,
+  projectTaskBodyValidator,
 };
 
 export default validators;
