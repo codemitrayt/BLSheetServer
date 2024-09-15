@@ -35,6 +35,13 @@ class ProjectMemberService {
       }
     );
   }
+
+  async findMemberByUserIdAndProjectId(userId: string, projectId: string) {
+    return await this.projectMemberModel.findOne({
+      userId,
+      projectId,
+    });
+  }
 }
 
 export default ProjectMemberService;

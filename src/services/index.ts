@@ -6,6 +6,7 @@ import NotificationService from "./notification-service";
 import TodoService from "./todo-service";
 import ProjectService from "./project-service";
 import ProjectMemberService from "./project-member-service";
+import ProjectTaskService from "./project-task-service";
 
 export {
   AuthService,
@@ -16,4 +17,5 @@ export {
   TodoService,
   ProjectService,
   ProjectMemberService,
+  ProjectTaskService,
 };

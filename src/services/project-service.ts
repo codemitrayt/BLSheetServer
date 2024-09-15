@@ -9,6 +9,10 @@ class ProjectService {
     return this.projectModel.findOne({ _id: projectId, userId });
   }
 
+  async findProjectById(projectId: string) {
+    return this.projectModel.findById(projectId);
+  }
+
   async getProjectById(projectId: string, userId: string) {
     const result = await this.projectModel.aggregate([
       {
