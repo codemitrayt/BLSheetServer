@@ -15,6 +15,7 @@ import {
 import { ProjectTaskController } from "../controllers";
 import asyncFnHandler from "../utils/async-fn-handler";
 import authenticateJWT from "../middleware/autenticate-jwt";
+import validators from "../validator";
 
 const projectTaskRouter = express.Router();
 
@@ -33,6 +34,7 @@ const projectTaskController = new ProjectTaskController(
 projectTaskRouter.post(
   "/createProjectTask",
   authenticateJWT,
+  validators.projectTaskBodyValidator,
   asyncFnHandler((req, res, next) =>
     projectTaskController.createProjectTask(req, res, next)
   )
@@ -40,6 +42,7 @@ projectTaskRouter.post(
 
 projectTaskRouter.post(
   "/getProjectTasks",
+  validators.objectIdBodyValidator,
   authenticateJWT,
   asyncFnHandler((req, res, next) =>
     projectTaskController.getProjectTasks(req, res, next)
