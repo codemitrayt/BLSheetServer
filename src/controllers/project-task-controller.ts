@@ -1,4 +1,8 @@
+import { ObjectId } from "mongoose";
 import { NextFunction, Response } from "express";
+import createHttpError from "http-errors";
+import { validationResult } from "express-validator";
+
 import {
   AuthService,
   ProjectMemberService,
@@ -6,10 +10,7 @@ import {
   ProjectTaskService,
 } from "../services";
 import { CustomRequest, ProjectTask } from "../types";
-import createHttpError from "http-errors";
-import { validationResult } from "express-validator";
 import logger from "../config/logger";
-import { ObjectId } from "mongoose";
 
 class ProjectTaskController {
   constructor(
@@ -62,7 +63,7 @@ class ProjectTaskController {
   }
 
   async getProjectTasks(
-    req: CustomRequest<{ projectId: string }>,
+    req: CustomRequest<{ objectId: string }>,
     res: Response,
     next: NextFunction
   ) {
@@ -71,7 +72,7 @@ class ProjectTaskController {
       return next(createHttpError(400, result.array()[0].msg as string));
 
     const userId = req.userId as string;
-    const { projectId } = req.body;
+    const { objectId: projectId } = req.body;
 
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(400, "User not found"));
