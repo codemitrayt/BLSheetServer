@@ -164,3 +164,33 @@ export interface UpdateTeamMember {
   memberEmailId: string;
   invitationToken: string;
 }
+
+// Project Task //
+
+export enum ProjectTaskStatus {
+  TODO = "todo",
+  IN_PROGRESS = "in_progress",
+  UNDER_REVIEW = "under_review",
+  COMPLETED = "completed",
+}
+
+export enum ProjectTaskPriority {
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high",
+}
+
+export interface ProjectTask {
+  title: string;
+  description: string;
+  startDate: Date;
+  endDate: Date;
+  tags: string[];
+  status: ProjectTaskStatus;
+  priority: ProjectTaskPriority;
+  assignedTo?: ObjectId[];
+  userId: ObjectId;
+  projectId: ObjectId;
+  completedDate?: Date;
+  attachments?: ObjectId[];
+}
