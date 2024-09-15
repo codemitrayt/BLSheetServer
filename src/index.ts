@@ -11,6 +11,7 @@ import {
   todoRoutes,
   blSheetRoutes,
   projectRouters,
+  projectTaskRouters,
 } from "./routes";
 
 const app = express();
@@ -51,6 +52,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/blSheet", blSheetRoutes);
 app.use("/api/v1/todo", todoRoutes);
 app.use("/api/v1/project", projectRouters);
+app.use("/api/v1/projectTask", projectTaskRouters);
 app.use(errorHandler);
 
 export default app;
