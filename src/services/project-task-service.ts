@@ -47,7 +47,6 @@ class ProjectTaskService {
       },
     ];
     return await this.projectTaskModel.aggregate(pipeline).exec();
-    return await this.projectTaskModel.find({ projectId });
   }
 
   async getProjectTaskById(taskId: string) {
@@ -66,6 +65,13 @@ class ProjectTaskService {
 
   async deleteProjectTask(taskId: string, userId: string) {
     return await this.projectTaskModel.deleteOne({ _id: taskId, userId });
+  }
+
+  async getProjectTaskByIdAndUserId(taskId: string, userId: string) {
+    return await this.projectTaskModel.findOne({
+      _id: taskId,
+      userId,
+    });
   }
 }
 

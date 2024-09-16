@@ -49,4 +49,23 @@ projectTaskRouter.post(
   )
 );
 
+projectTaskRouter.put(
+  "/updateProjectTask",
+  validators.projectTaskBodyValidator,
+  validators.objectIdQueryValidator,
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectTaskController.updateProjectTask(req, res, next)
+  )
+);
+
+projectTaskRouter.delete(
+  "/deleteProjectTask",
+  validators.objectIdQueryValidator,
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectTaskController.deleteProjectTask(req, res, next)
+  )
+);
+
 export default projectTaskRouter;

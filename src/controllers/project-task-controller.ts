@@ -101,7 +101,95 @@ class ProjectTaskController {
         userId
       );
 
-    return res.json({ message: { projectTasks, project } });
+    return res.json({
+      message: {
+        projectTasks,
+        project,
+      },
+    });
+  }
+
+  async deleteProjectTask(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
+    const userId = req.userId as string;
+    const projectTaskId = req.query.objectId as string;
+
+    logger.info({ key: "Delete Project Task", userId, projectTaskId });
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    const projectTask =
+      await this.projectTaskService.getProjectTaskByIdAndUserId(
+        projectTaskId as unknown as string,
+        userId
+      );
+
+    console.log(projectTask);
+    if (!projectTask)
+      return next(createHttpError(400, "Project task not found"));
+
+    if (projectTask.userId.toString() !== userId) {
+      return next(
+        createHttpError(
+          403,
+          "You do not have permission to delete this project task"
+        )
+      );
+    }
+
+    await this.projectTaskService.deleteProjectTask(projectTaskId, userId);
+
+    return res.json({ message: { projectTaskId: projectTask._id } });
+  }
+
+  async updateProjectTask(
+    req: CustomRequest<ProjectTask>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
+    const userId = req.userId as string;
+    const { objectId: projectTaskId } = req.query;
+    const updatedProjectTask = req.body;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    const projectTask =
+      await this.projectTaskService.getProjectTaskByIdAndUserId(
+        projectTaskId as unknown as string,
+        userId
+      );
+
+    if (!projectTask)
+      return next(createHttpError(400, "Project task not found"));
+
+    if (projectTask.userId.toString() !== userId) {
+      return next(
+        createHttpError(
+          403,
+          "You do not have permission to update this project task"
+        )
+      );
+    }
+
+    await this.projectTaskService.updateProjectTask(
+      projectTaskId as string,
+      updatedProjectTask
+    );
+
+    return res.json({ message: { projectTask: updatedProjectTask } });
   }
 }
 
