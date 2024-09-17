@@ -31,6 +31,7 @@ class ProjectService {
         $project: {
           _id: 1,
           name: 1,
+          userId: 1,
           description: 1,
           tags: 1,
           img: 1,
