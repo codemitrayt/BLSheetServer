@@ -52,6 +52,15 @@ class AuthService {
       { new: true }
     );
   }
+
+  async removeProject(userId: string, projectId: string) {
+    const result = await this.userModel.findByIdAndUpdate(
+      { _id: new mongoose.Types.ObjectId(userId) },
+      { $pull: { projects: new mongoose.Types.ObjectId(projectId) } },
+      { new: true }
+    );
+    return result;
+  }
 }
 
 export default AuthService;
