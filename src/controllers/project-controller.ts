@@ -263,7 +263,8 @@ class ProjectController {
     if (!project) return next(createHttpError(400, "Project not found"));
 
     const projectMembers = await this.projectMemberService.getProjectMembers(
-      projectId
+      projectId,
+      project.userId
     );
 
     return res.json({
@@ -328,6 +329,36 @@ class ProjectController {
     }
 
     return res.json({ message: `Project invitation ${status}` });
+  }
+
+  async removeProjectMember(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
+    const userId = req.userId as string;
+    const memberId = req.query.objectId as string;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(401, "Unauthorized"));
+
+    const projectMember = await this.projectMemberService.getProjectMemberById(
+      memberId
+    );
+    if (!projectMember)
+      return next(createHttpError(400, "Project member not found"));
+
+    await this.projectMemberService.deleteProjectMember(memberId);
+
+    await this.authService.removeProject(
+      projectMember.userId as unknown as string,
+      projectMember.projectId as unknown as string
+    );
+    return res.json({ message: "Project member removed successfully" });
   }
 }
 
