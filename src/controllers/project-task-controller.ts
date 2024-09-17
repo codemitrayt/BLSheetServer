@@ -132,7 +132,6 @@ class ProjectTaskController {
         userId
       );
 
-    console.log(projectTask);
     if (!projectTask)
       return next(createHttpError(400, "Project task not found"));
 

@@ -105,4 +105,13 @@ projectRouter.put(
   )
 );
 
+projectRouter.delete(
+  "/removeProjectMember",
+  authenticateJWT,
+  validators.objectIdQueryValidator,
+  asyncFnHandler((req, res, next) =>
+    projectController.removeProjectMember(req, res, next)
+  )
+);
+
 export default projectRouter;

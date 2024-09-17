@@ -1,3 +1,4 @@
+import mongoose, { PipelineStage } from "mongoose";
 import { ProjectMemberModel } from "../model";
 import { ProjectMember } from "../types";
 
@@ -8,8 +9,26 @@ class ProjectMemberService {
     return await this.projectMemberModel.findById(memberId);
   }
 
-  async getProjectMembers(projectId: string) {
-    return await this.projectMemberModel.find({ projectId });
+  async getProjectMembers(projectId: string, userId: string) {
+    const pipeline: PipelineStage[] = [
+      { $match: { projectId: new mongoose.Types.ObjectId(projectId) } },
+      {
+        $addFields: {
+          isAdmin: { $eq: ["$userId", new mongoose.Types.ObjectId(userId)] },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          memberEmailId: 1,
+          status: 1,
+          isAdmin: 1,
+        },
+      },
+    ];
+
+    const result = await this.projectMemberModel.aggregate(pipeline).exec();
+    return result;
   }
 
   async addProjectMember(projectMember: ProjectMember) {
@@ -41,6 +60,10 @@ class ProjectMemberService {
       userId,
       projectId,
     });
+  }
+
+  async deleteProjectMember(memberId: string) {
+    return await this.projectMemberModel.deleteOne({ _id: memberId });
   }
 }
 
