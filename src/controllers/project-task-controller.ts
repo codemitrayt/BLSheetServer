@@ -126,14 +126,21 @@ class ProjectTaskController {
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(400, "User not found"));
 
-    const projectTask =
-      await this.projectTaskService.getProjectTaskByIdAndUserId(
-        projectTaskId as unknown as string,
-        userId
-      );
-
+    const projectTask = await this.projectTaskService.getProjectTaskById(
+      projectTaskId as unknown as string
+    );
     if (!projectTask)
       return next(createHttpError(400, "Project task not found"));
+
+    const project = await this.projectService.getProjectById(
+      projectTask?.projectId as unknown as string,
+      userId
+    );
+
+    if (project.isAdmin) {
+      await this.projectTaskService.deleteProjectTaskById(projectTaskId);
+      return res.json({ message: { projectTaskId } });
+    }
 
     if (projectTask.userId.toString() !== userId) {
       return next(
@@ -145,7 +152,6 @@ class ProjectTaskController {
     }
 
     await this.projectTaskService.deleteProjectTask(projectTaskId, userId);
-
     return res.json({ message: { projectTaskId: projectTask._id } });
   }
 

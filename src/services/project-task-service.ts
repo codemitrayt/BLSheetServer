@@ -73,6 +73,10 @@ class ProjectTaskService {
       userId,
     });
   }
+
+  async deleteProjectTaskById(taskId: string) {
+    return await this.projectTaskModel.deleteOne({ _id: taskId });
+  }
 }
 
 export default ProjectTaskService;
