@@ -91,6 +91,7 @@ projectRouter.post(
   "/getProjectMembers",
   authenticateJWT,
   validators.objectIdBodyValidator,
+  validators.getProjectMemberQueryValidator,
   asyncFnHandler((req, res, next) =>
     projectController.getProjectMembers(req, res, next)
   )
