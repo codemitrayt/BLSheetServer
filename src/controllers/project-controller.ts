@@ -17,6 +17,7 @@ import { URLS } from "../constants";
 import logger from "../config/logger";
 import {
   CustomRequest,
+  GetProjectMemberQuery,
   InviteTeamMemberType,
   ObjectIdBody,
   Project,
@@ -245,6 +246,7 @@ class ProjectController {
 
     const projectId = req.body.objectId;
     const userId = req.userId as string;
+    const projectMemberQuery = req.query as unknown as GetProjectMemberQuery;
 
     logger.info({ projectId });
 
@@ -262,15 +264,14 @@ class ProjectController {
     const project = await this.projectService.getProjectById(projectId, userId);
     if (!project) return next(createHttpError(400, "Project not found"));
 
-    const projectMembers = await this.projectMemberService.getProjectMembers(
+    const data = await this.projectMemberService.getProjectMembers(
       projectId,
-      project.userId
+      project.userId,
+      projectMemberQuery
     );
 
     return res.json({
-      message: {
-        projectMembers,
-      },
+      message: data,
     });
   }
 
