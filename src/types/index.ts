@@ -194,3 +194,10 @@ export interface ProjectTask {
   completedDate?: Date;
   attachments?: ObjectId[];
 }
+
+export interface GetProjectMemberQuery {
+  memberEmail: string;
+  currentPage: number;
+  perPage: number;
+  status: ProjectTaskStatus | "all";
+}
