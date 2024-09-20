@@ -77,4 +77,13 @@ projectTaskRouter.post(
   )
 );
 
+projectTaskRouter.delete(
+  "/removeAssignedUserFormProjectTask",
+  validators.assignMemberToProjectTaskBodyValidator,
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectTaskController.removeAssignedUserFormProjectTask(req, res, next)
+  )
+);
+
 export default projectTaskRouter;
