@@ -201,3 +201,9 @@ export interface GetProjectMemberQuery {
   perPage: number;
   status: ProjectTaskStatus | "all";
 }
+
+export interface AssignUserToProjectTask {
+  memberEmailId: string;
+  projectId: string;
+  projectTaskId: string;
+}
