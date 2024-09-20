@@ -58,7 +58,6 @@ class ProjectMemberService {
     ];
 
     const result = await this.projectMemberModel.aggregate(pipeline).exec();
-    console.log(result[0]);
     if (result.length) return result[0];
     return { metadata: { totalCount: 0 }, projectMembers: [] };
   }
@@ -96,6 +95,16 @@ class ProjectMemberService {
 
   async deleteProjectMember(memberId: string) {
     return await this.projectMemberModel.deleteOne({ _id: memberId });
+  }
+
+  async getProjectMemberByEmailIdAndProjectId(
+    email: string,
+    projectId: string
+  ) {
+    return await this.projectMemberModel.findOne({
+      memberEmailId: email,
+      projectId,
+    });
   }
 }
 
