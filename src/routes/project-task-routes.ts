@@ -68,4 +68,13 @@ projectTaskRouter.delete(
   )
 );
 
+projectTaskRouter.post(
+  "/assignUserToProjectTask",
+  validators.assignMemberToProjectTaskBodyValidator,
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectTaskController.assignUserToProjectTask(req, res, next)
+  )
+);
+
 export default projectTaskRouter;
