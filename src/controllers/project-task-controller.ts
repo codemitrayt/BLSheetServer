@@ -241,6 +241,54 @@ class ProjectTaskController {
 
     return res.json({ message: "Project task member assigned successfully" });
   }
+
+  async removeAssignedUserFormProjectTask(
+    req: CustomRequest<AssignUserToProjectTask>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
+    const userId = req.userId as string;
+    const { projectId, projectTaskId, memberEmailId } = req.body;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    const projectTask =
+      await this.projectTaskService.getProjectTaskByIdAndUserId(
+        projectTaskId,
+        userId
+      );
+    if (!projectTask)
+      return next(createHttpError(400, "Project task not found"));
+
+    const project = await this.projectService.getProjectById(
+      projectTask?.projectId as unknown as string,
+      userId
+    );
+
+    const member =
+      await this.projectMemberService.getProjectMemberByEmailIdAndProjectId(
+        memberEmailId,
+        projectId
+      );
+    if (!member) return next(createHttpError(400, "Project member not found"));
+
+    if (project.isAdmin || projectTask.userId.toString() === userId) {
+      await this.projectTaskService.removeMember(
+        projectTask._id as unknown as string,
+        member._id as unknown as string
+      );
+      return res.json({ message: "User removed successfully" });
+    }
+
+    return next(
+      createHttpError(400, "You do not have permission to remove user.")
+    );
+  }
 }
 
 export default ProjectTaskController;
