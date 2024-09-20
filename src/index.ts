@@ -17,7 +17,7 @@ import {
 const app = express();
 
 const corsOption: cors.CorsOptions = {
-  origin: true,
+  origin: [Config.FRONTEND_URL!],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
 };
