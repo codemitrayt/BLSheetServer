@@ -20,6 +20,28 @@ class ProjectTaskService {
       },
       { $unwind: "$user" },
       {
+        $lookup: {
+          from: "projectmembers",
+          localField: "assignedTo",
+          foreignField: "_id",
+          as: "membersDetails",
+        },
+      },
+      {
+        $addFields: {
+          assignedMembers: {
+            $map: {
+              input: "$membersDetails", // Loop through membersDetails array
+              as: "member",
+              in: {
+                _id: "$$member._id",
+                memberEmailId: "$$member.memberEmailId",
+              },
+            },
+          },
+        },
+      },
+      {
         $project: {
           title: 1,
           description: 1,
@@ -28,11 +50,11 @@ class ProjectTaskService {
           tags: 1,
           status: 1,
           priority: 1,
-          assignedTo: 1,
           userId: 1,
           projectId: 1,
           completedDate: 1,
           attachments: 1,
+          assignedMembers: 1,
           user: {
             _id: "$user._id",
             fullName: "$user.fullName",
@@ -46,7 +68,8 @@ class ProjectTaskService {
         },
       },
     ];
-    return await this.projectTaskModel.aggregate(pipeline).exec();
+    const result = await this.projectTaskModel.aggregate(pipeline).exec();
+    return result;
   }
 
   async getProjectTaskById(taskId: string) {
@@ -76,6 +99,14 @@ class ProjectTaskService {
 
   async deleteProjectTaskById(taskId: string) {
     return await this.projectTaskModel.deleteOne({ _id: taskId });
+  }
+
+  async assignMember(projectTaskId: string, memberId: string) {
+    return await this.projectTaskModel.findByIdAndUpdate(
+      projectTaskId,
+      { $push: { assignedTo: memberId } },
+      { new: true }
+    );
   }
 }
 
