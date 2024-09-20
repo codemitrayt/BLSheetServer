@@ -108,6 +108,14 @@ class ProjectTaskService {
       { new: true }
     );
   }
+
+  async removeMember(projectTaskId: string, memberId: string) {
+    return await this.projectTaskModel.findByIdAndUpdate(
+      projectTaskId,
+      { $pull: { assignedTo: new mongoose.Types.ObjectId(memberId) } },
+      { new: true }
+    );
+  }
 }
 
 export default ProjectTaskService;
