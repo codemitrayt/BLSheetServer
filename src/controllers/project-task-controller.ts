@@ -9,7 +9,7 @@ import {
   ProjectService,
   ProjectTaskService,
 } from "../services";
-import { CustomRequest, ProjectTask } from "../types";
+import { AssignUserToProjectTask, CustomRequest, ProjectTask } from "../types";
 import logger from "../config/logger";
 
 class ProjectTaskController {
@@ -195,6 +195,51 @@ class ProjectTaskController {
     );
 
     return res.json({ message: { projectTask: updatedProjectTask } });
+  }
+
+  async assignUserToProjectTask(
+    req: CustomRequest<AssignUserToProjectTask>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
+    const userId = req.userId as string;
+    const { memberEmailId, projectId, projectTaskId } = req.body;
+
+    logger.info({ userId, memberEmailId, projectId, projectTaskId });
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    const project = await this.projectService.findProjectById(
+      projectId as unknown as string
+    );
+    if (!project) return next(createHttpError(400, "Project not found"));
+
+    const projectMember =
+      await this.projectMemberService.getProjectMemberByEmailIdAndProjectId(
+        memberEmailId,
+        projectId
+      );
+    if (!projectMember) {
+      return next(createHttpError(403, "User is not a member of the project"));
+    }
+
+    const projectTask = await this.projectTaskService.getProjectTaskById(
+      projectTaskId
+    );
+    if (!projectTask)
+      return next(createHttpError(400, "ProjectTask not found"));
+
+    await this.projectTaskService.assignMember(
+      projectTask._id as unknown as string,
+      projectMember._id as unknown as string
+    );
+
+    return res.json({ message: "Project task member assigned successfully" });
   }
 }
 
