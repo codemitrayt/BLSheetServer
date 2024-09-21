@@ -4,6 +4,7 @@ import TodoModel from "./todo-model";
 import ProjectModel from "./project-model";
 import ProjectMemberModel from "./project-member-model";
 import ProjectTaskModel from "./project-task-model";
+import CommentModel from "./comment-model";
 
 export {
   UserModel,
@@ -12,4 +13,5 @@ export {
   ProjectModel,
   ProjectMemberModel,
   ProjectTaskModel,
+  CommentModel,
 };
