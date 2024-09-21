@@ -2,11 +2,13 @@ import express from "express";
 
 import {
   AuthService,
+  CommentService,
   ProjectMemberService,
   ProjectService,
   ProjectTaskService,
 } from "../services";
 import {
+  CommentModel,
   ProjectMemberModel,
   ProjectModel,
   ProjectTaskModel,
@@ -23,12 +25,14 @@ const projectService = new ProjectService(ProjectModel);
 const projectTaskService = new ProjectTaskService(ProjectTaskModel);
 const authService = new AuthService(UserModel);
 const projectMemberService = new ProjectMemberService(ProjectMemberModel);
+const commentService = new CommentService(CommentModel);
 
 const projectTaskController = new ProjectTaskController(
   authService,
   projectService,
   projectTaskService,
-  projectMemberService
+  projectMemberService,
+  commentService
 );
 
 projectTaskRouter.post(
@@ -83,6 +87,22 @@ projectTaskRouter.delete(
   authenticateJWT,
   asyncFnHandler((req, res, next) =>
     projectTaskController.removeAssignedUserFormProjectTask(req, res, next)
+  )
+);
+
+projectTaskRouter.post(
+  "/createProjectTaskComment",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectTaskController.createProjectTaskComment(req, res, next)
+  )
+);
+
+projectTaskRouter.post(
+  "/getProjectTaskComments",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectTaskController.getProjectTaskComments(req, res, next)
   )
 );
 
