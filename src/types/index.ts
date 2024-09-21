@@ -193,6 +193,7 @@ export interface ProjectTask {
   projectId: ObjectId;
   completedDate?: Date;
   attachments?: ObjectId[];
+  comments: ObjectId[];
 }
 
 export interface GetProjectMemberQuery {
@@ -206,4 +207,17 @@ export interface AssignUserToProjectTask {
   memberEmailId: string;
   projectId: string;
   projectTaskId: string;
+}
+
+export interface Comment {
+  content: string;
+  userId: ObjectId;
+  likes?: number;
+  replies?: ObjectId[];
+}
+
+export interface ProjectTaskComment {
+  projectTaskId: string;
+  content: string;
+  projectId: string;
 }
