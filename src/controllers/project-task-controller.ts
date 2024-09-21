@@ -5,11 +5,17 @@ import { validationResult } from "express-validator";
 
 import {
   AuthService,
+  CommentService,
   ProjectMemberService,
   ProjectService,
   ProjectTaskService,
 } from "../services";
-import { AssignUserToProjectTask, CustomRequest, ProjectTask } from "../types";
+import {
+  AssignUserToProjectTask,
+  CustomRequest,
+  ProjectTask,
+  ProjectTaskComment,
+} from "../types";
 import logger from "../config/logger";
 
 class ProjectTaskController {
@@ -17,7 +23,8 @@ class ProjectTaskController {
     private authService: AuthService,
     private projectService: ProjectService,
     private projectTaskService: ProjectTaskService,
-    private projectMemberService: ProjectMemberService
+    private projectMemberService: ProjectMemberService,
+    private commentService: CommentService
   ) {}
 
   async createProjectTask(
@@ -289,6 +296,74 @@ class ProjectTaskController {
       createHttpError(400, "You do not have permission to remove user.")
     );
   }
+
+  async createProjectTaskComment(
+    req: CustomRequest<ProjectTaskComment>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
+    const userId = req.userId as string;
+    const { projectTaskId, content, projectId } = req.body;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    const projectTask = await this.projectTaskService.getProjectTaskById(
+      projectTaskId as unknown as string
+    );
+    if (!projectTask)
+      return next(createHttpError(400, "Project task not found"));
+
+    const isMemberExist = await this.projectMemberService.getProjectMember(
+      projectId,
+      user.email
+    );
+    if (!isMemberExist) {
+      return next(createHttpError(403, "User is not a member of the project"));
+    }
+
+    const comment = await this.commentService.createComment({
+      content,
+      userId: userId as unknown as ObjectId,
+    });
+
+    await this.projectTaskService.addComment(
+      projectTaskId as string,
+      comment._id as unknown as string
+    );
+
+    return res.json({ message: { comment } });
+  }
+
+  async getProjectTaskComments(
+    req: CustomRequest<{ projectTaskId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req.userId as string;
+    const { projectTaskId } = req.body;
+
+    const projectTask = await this.projectTaskService.getProjectTaskById(
+      projectTaskId as unknown as string
+    );
+    if (!projectTask)
+      return next(createHttpError(400, "Project task not found"));
+
+    const comments = await this.projectTaskService.getComments(
+      projectTaskId as unknown as string,
+      userId
+    );
+
+    return res.json({ message: { projectTask: comments } });
+  }
+
+  async deleteProjectTaskComment() {}
+
+  async updateProjectTaskComment() {}
 }
 
 export default ProjectTaskController;
