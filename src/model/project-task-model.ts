@@ -57,6 +57,11 @@ const projectTaskSchema = new mongoose.Schema({
     ref: "Attachment",
     required: false,
   },
+  comments: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Comment",
+    required: false,
+  },
 });
 
 const ProjectTaskModel: Model<CustomModel<ProjectTask>> = model<
