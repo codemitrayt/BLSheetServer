@@ -31,7 +31,7 @@ class ProjectTaskService {
         $addFields: {
           assignedMembers: {
             $map: {
-              input: "$membersDetails", // Loop through membersDetails array
+              input: "$membersDetails",
               as: "member",
               in: {
                 _id: "$$member._id",
@@ -39,6 +39,7 @@ class ProjectTaskService {
               },
             },
           },
+          commentCount: { $size: "$comments" },
         },
       },
       {
@@ -55,6 +56,7 @@ class ProjectTaskService {
           completedDate: 1,
           attachments: 1,
           assignedMembers: 1,
+          commentCount: 1,
           user: {
             _id: "$user._id",
             fullName: "$user.fullName",
@@ -115,6 +117,86 @@ class ProjectTaskService {
       { $pull: { assignedTo: new mongoose.Types.ObjectId(memberId) } },
       { new: true }
     );
+  }
+
+  async addComment(projectTaskId: string, commentId: string) {
+    return await this.projectTaskModel.findByIdAndUpdate(
+      projectTaskId,
+      { $push: { comments: commentId } },
+      { new: true }
+    );
+  }
+
+  async getComments(projectTaskId: string, userId: string) {
+    const pipeline: PipelineStage[] = [
+      {
+        $match: { _id: new mongoose.Types.ObjectId(projectTaskId) },
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "comments",
+          foreignField: "_id",
+          as: "commentsDetails",
+        },
+      },
+      {
+        $unwind: "$commentsDetails",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "commentsDetails.userId",
+          foreignField: "_id",
+          as: "commentsDetails.author",
+        },
+      },
+      {
+        $unwind: "$commentsDetails.author",
+      },
+      {
+        $addFields: {
+          "commentsDetails.isCreator": {
+            $cond: {
+              if: {
+                $eq: [{ $toString: "$commentsDetails.author._id" }, userId],
+              },
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          "commentsDetails.userId": 0,
+          "commentsDetails.__v": 0,
+          "commentsDetails.author.password": 0,
+          "commentsDetails.author.projects": 0,
+          "commentsDetails.author.__v": 0,
+          "commentsDetails.author.createdAt": 0,
+          "commentsDetails.author.updatedAt": 0,
+          "commentsDetails.author.role": 0,
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          comments: { $push: "$commentsDetails" },
+        },
+      },
+      {
+        $project: {
+          createdAt: 0,
+          updatedAt: 0,
+          __v: 0,
+        },
+      },
+    ];
+
+    const result = await this.projectTaskModel.aggregate(pipeline).exec();
+    if (result.length > 0) return result[0];
+    return { comments: [] };
   }
 }
 
