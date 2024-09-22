@@ -198,6 +198,14 @@ class ProjectTaskService {
     if (result.length > 0) return result[0];
     return { comments: [] };
   }
+
+  async removeComment(projectTaskId: string, commentId: string) {
+    return await this.projectTaskModel.findByIdAndUpdate(
+      projectTaskId,
+      { $pull: { comments: new mongoose.Types.ObjectId(commentId) } },
+      { new: true }
+    );
+  }
 }
 
 export default ProjectTaskService;

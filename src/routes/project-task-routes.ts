@@ -106,4 +106,12 @@ projectTaskRouter.post(
   )
 );
 
+projectTaskRouter.delete(
+  "/deleteProjectTaskComment",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectTaskController.deleteProjectTaskComment(req, res, next)
+  )
+);
+
 export default projectTaskRouter;

@@ -361,7 +361,55 @@ class ProjectTaskController {
     return res.json({ message: { projectTask: comments } });
   }
 
-  async deleteProjectTaskComment() {}
+  async deleteProjectTaskComment(
+    req: CustomRequest<{
+      projectId: string;
+      projectTaskId: string;
+      commentId: string;
+    }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req.userId as string;
+    const { projectId, projectTaskId, commentId } = req.body;
+
+    logger.info({ projectId, projectTaskId, commentId });
+
+    const project = await this.projectService.findProjectById(projectId);
+    if (!project) return next(createHttpError(400, "Project not found"));
+
+    const projectTask = await this.projectTaskService.getProjectTaskById(
+      projectTaskId as unknown as string
+    );
+    if (!projectTask)
+      return next(createHttpError(400, "Project task not found"));
+
+    const comment = await this.commentService.getCommentById(commentId);
+    if (!comment) return next(createHttpError(400, "Comment not found"));
+
+    logger.info({ projectUserId: project.userId, userId });
+
+    if (
+      comment.userId.toString() !== userId &&
+      project.userId.toString() !== userId
+    ) {
+      return next(
+        createHttpError(
+          403,
+          "You do not have permission to delete this comment"
+        )
+      );
+    }
+
+    await this.commentService.deleteComment(commentId);
+
+    await this.projectTaskService.removeComment(
+      projectTaskId as string,
+      commentId as unknown as string
+    );
+
+    return res.json({ message: "Comment deleted successfully" });
+  }
 
   async updateProjectTaskComment() {}
 }
