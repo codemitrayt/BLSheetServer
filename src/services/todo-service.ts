@@ -25,9 +25,9 @@ class TodoService {
           status: 1,
           level: 1,
           createdAt: 1,
-          year: { $year: "$updatedAt" },
-          month: { $month: "$updatedAt" },
-          day: { $dayOfMonth: "$updatedAt" },
+          year: { $year: "$createdAt" },
+          month: { $month: "$createdAt" },
+          day: { $dayOfMonth: "$createdAt" },
         },
       },
       {
