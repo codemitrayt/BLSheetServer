@@ -20,6 +20,7 @@ import {
   SelfBody,
   SendVerificationEmailForRegistrationBody,
 } from "../types";
+import logger from "../config/logger";
 
 class AuthController {
   constructor(
@@ -117,6 +118,8 @@ class AuthController {
       return next(createHttpError(400, result.array()[0].msg as string));
 
     const { password, email } = req.body;
+    logger.info({ message: "Login User", email: email });
+
     const user = await this.authService.findUserByEmail(email);
     if (!user)
       return next(createHttpError(400, "Email or password entered wrong."));
