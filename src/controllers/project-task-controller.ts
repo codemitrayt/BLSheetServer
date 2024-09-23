@@ -17,6 +17,7 @@ import {
   ProjectTaskComment,
 } from "../types";
 import logger from "../config/logger";
+import { io } from "..";
 
 class ProjectTaskController {
   constructor(
@@ -64,6 +65,10 @@ class ProjectTaskController {
     const newProjectTask = await this.projectTaskService.createProjectTask({
       ...projectTask,
       userId: userId as unknown as ObjectId,
+    });
+
+    io.to(projectTask.projectId as unknown as string).emit("CREATED_TASK", {
+      projectTask: newProjectTask,
     });
 
     return res.json({ message: { projectTask: newProjectTask } });
