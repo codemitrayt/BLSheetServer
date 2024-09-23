@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "balance sheet backend service",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "start": "node api/index.ts",
     "dev": "nodemon api/index.ts",
