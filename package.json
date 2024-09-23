@@ -5,9 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.ts",
-    "dev": "nodemon src/index.ts",
-    "build": "CI=false tsc",
+    "start": "node api/index.ts",
+    "dev": "nodemon api/index.ts",
+    "build": "tsc",
     "vercel-build": "echo hello"
   },
   "repository": {
