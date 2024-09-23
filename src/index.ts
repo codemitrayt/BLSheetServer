@@ -18,11 +18,28 @@ import {
 
 const app = express();
 const server = createServer(app);
+
+// SOCKET CONNECTION
 export const io = new Server(server, {
   cors: {
     origin: [Config.FRONTEND_URL!],
     credentials: true,
   },
+  transports: ["websocket"],
+});
+
+io.on("connection", (socket) => {
+  logger.info({ msg: "USER CONNECTED", socketId: socket.id });
+
+  socket.on("join", (data: { projectId: string }) => {
+    logger.info({ msg: "User joined project", projectId: data.projectId });
+    socket.join(data.projectId);
+    socket.emit("join", { roomId: data.projectId });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected", socket.id);
+  });
 });
 
 const corsOption: cors.CorsOptions = {
@@ -55,15 +72,6 @@ app.use(express.static("public"));
 
 app.get("/", (req, res) => {
   return res.send("Hello from BLSheet backend!");
-});
-
-io.on("connection", (socket) => {
-  logger.info({ msg: "User connected", socketId: socket.id });
-  socket.on("join", (data: { projectId: string }) => {
-    logger.info({ msg: "User joined in", id: data.projectId });
-    socket.join(data.projectId.toString());
-    socket.emit("join", { roomId: data.projectId });
-  });
 });
 
 app.use("/api/v1/auth", authRoutes);
