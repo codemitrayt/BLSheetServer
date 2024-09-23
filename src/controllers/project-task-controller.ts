@@ -68,7 +68,25 @@ class ProjectTaskController {
     });
 
     io.to(projectTask.projectId as unknown as string).emit("CREATED_TASK", {
-      projectTask: newProjectTask,
+      _id: newProjectTask._id,
+      title: newProjectTask.title,
+      description: newProjectTask.description,
+      startDate: newProjectTask.startDate,
+      endDate: newProjectTask.endDate,
+      tags: newProjectTask.tags,
+      status: newProjectTask.status,
+      priority: newProjectTask.priority,
+      userId: newProjectTask.userId,
+      projectId: newProjectTask.projectId,
+      completedDate: null,
+      assignedMembers: [],
+      commentCount: 0,
+      user: {
+        _id: userId,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+      },
     });
 
     return res.json({ message: { projectTask: newProjectTask } });
