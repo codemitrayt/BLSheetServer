@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node api/index.ts",
     "dev": "nodemon api/index.ts",
-    "build": "tsc",
+    "build": "CI=false tsc",
     "vercel-build": "echo hello"
   },
   "repository": {
