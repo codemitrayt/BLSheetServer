@@ -20,8 +20,7 @@ const app = express();
 const server = createServer(app);
 export const io = new Server(server, {
   cors: {
-    // origin: [Config.FRONTEND_URL!],
-    origin: "*",
+    origin: [Config.FRONTEND_URL!],
     credentials: true,
   },
 });
