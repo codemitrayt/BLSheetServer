@@ -122,4 +122,12 @@ projectTaskRouter.put(
   )
 );
 
+projectTaskRouter.post(
+  "/getProjectTaskForUser",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectTaskController.getProjectTaskForUser(req, res, next)
+  )
+);
+
 export default projectTaskRouter;

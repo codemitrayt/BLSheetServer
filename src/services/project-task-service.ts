@@ -206,6 +206,27 @@ class ProjectTaskService {
       { new: true }
     );
   }
+
+  async getProjectTasksByUserId(projectId: string, memberId: string) {
+    return await this.projectTaskModel
+      .aggregate([
+        {
+          $match: {
+            projectId: new mongoose.Types.ObjectId(projectId),
+            assignedTo: { $in: [memberId] },
+          },
+        },
+        {
+          $project: {
+            status: 1,
+            title: 1,
+            tags: 1,
+            priority: 1,
+          },
+        },
+      ])
+      .exec();
+  }
 }
 
 export default ProjectTaskService;

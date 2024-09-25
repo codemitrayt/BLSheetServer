@@ -471,6 +471,38 @@ class ProjectTaskController {
     });
     return res.json({ message: { comment: updatedComment } });
   }
+
+  async getProjectTaskForUser(
+    req: CustomRequest<{ projectId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req.userId as string;
+    const { projectId } = req.body;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    const project = await this.projectService.getProjectById(
+      projectId as unknown as string,
+      userId
+    );
+    if (!project) return next(createHttpError(400, "Project not found"));
+
+    const member =
+      await this.projectMemberService.findMemberByUserIdAndProjectId(
+        userId,
+        projectId
+      );
+    if (!member) return next(createHttpError(400, "Member not found"));
+
+    const projectTasks = await this.projectTaskService.getProjectTasksByUserId(
+      projectId as unknown as string,
+      member._id as string
+    );
+
+    return res.json({ message: { projectTasks } });
+  }
 }
 
 export default ProjectTaskController;
