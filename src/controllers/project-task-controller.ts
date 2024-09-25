@@ -434,7 +434,43 @@ class ProjectTaskController {
     return res.json({ message: "Comment deleted successfully" });
   }
 
-  async updateProjectTaskComment() {}
+  async updateProjectTaskComment(
+    req: CustomRequest<ProjectTaskComment & { commentId: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
+    const userId = req.userId as string;
+    const { projectTaskId, content, commentId, projectId } = req.body;
+
+    const projectTask = await this.projectTaskService.getProjectTaskById(
+      projectTaskId as unknown as string
+    );
+    if (!projectTask)
+      return next(createHttpError(400, "Project task not found"));
+
+    const comment = await this.commentService.getCommentById(commentId);
+    if (!comment) return next(createHttpError(400, "Comment not found"));
+
+    const project = await this.projectService.getProjectById(projectId, userId);
+
+    if (comment.userId.toString() !== userId && !project.isAdmin) {
+      return next(
+        createHttpError(
+          403,
+          "You do not have permission to update this comment"
+        )
+      );
+    }
+
+    const updatedComment = await this.commentService.updateComment(commentId, {
+      content,
+    });
+    return res.json({ message: { comment: updatedComment } });
+  }
 }
 
 export default ProjectTaskController;

@@ -12,7 +12,7 @@ class CommentService {
     return await this.commentModel.findById(commentId);
   }
 
-  async updateComment(commentId: string, comment: Comment) {
+  async updateComment(commentId: string, comment: { content: string }) {
     return await this.commentModel.findByIdAndUpdate(commentId, comment, {
       new: true,
     });
