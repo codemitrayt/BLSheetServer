@@ -5,7 +5,11 @@ import { ProjectTask } from "../types";
 class ProjectTaskService {
   constructor(private projectTaskModel: typeof ProjectTaskModel) {}
 
-  async getProjectTasksByProjectId(projectId: string, userId: string) {
+  async getProjectTasksByProjectId(
+    projectId: string,
+    userId: string,
+    memberId: string
+  ) {
     const pipeline: PipelineStage[] = [
       {
         $match: { projectId: new mongoose.Types.ObjectId(projectId) },
@@ -67,6 +71,12 @@ class ProjectTaskService {
       {
         $addFields: {
           isCreator: { $eq: ["$userId", new mongoose.Types.ObjectId(userId)] },
+          isMember: {
+            $in: [
+              new mongoose.Types.ObjectId(memberId),
+              "$assignedMembers._id",
+            ],
+          },
         },
       },
     ];
