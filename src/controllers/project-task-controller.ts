@@ -185,17 +185,17 @@ class ProjectTaskController {
         userId
       );
 
-    if (!projectTask)
-      return next(createHttpError(400, "Project task not found"));
+    // if (!projectTask)
+    //   return next(createHttpError(400, "Project task not found"));
 
-    if (projectTask.userId.toString() !== userId) {
-      return next(
-        createHttpError(
-          403,
-          "You do not have permission to update this project task"
-        )
-      );
-    }
+    // if (projectTask.userId.toString() !== userId) {
+    //   return next(
+    //     createHttpError(
+    //       403,
+    //       "You do not have permission to update this project task"
+    //     )
+    //   );
+    // }
 
     await this.projectTaskService.updateProjectTask(
       projectTaskId as string,
