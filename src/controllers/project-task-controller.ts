@@ -105,7 +105,8 @@ class ProjectTaskController {
     const projectTasks =
       await this.projectTaskService.getProjectTasksByProjectId(
         projectId as unknown as string,
-        userId
+        userId,
+        isProjectMember._id as unknown as string
       );
 
     return res.json({
