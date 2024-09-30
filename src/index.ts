@@ -24,6 +24,7 @@ export const io = new Server(server, {
   cors: {
     // origin: [Config.FRONTEND_URL!],
     origin: "*",
+    methods: ["GET", "POST"],
     credentials: true,
   },
   transports: ["websocket"],
@@ -60,7 +61,7 @@ const startServer = async () => {
     await connectDB();
     logger.info("Database connected successfully.");
 
-    app.listen(PORT, () => logger.info(`Server listening on ${PORT}`));
+    server.listen(PORT, () => logger.info(`Server listening on ${PORT}`));
   } catch (error) {
     if (error instanceof Error) {
       logger.error(error.message);

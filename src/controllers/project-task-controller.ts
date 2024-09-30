@@ -17,6 +17,7 @@ import {
   ProjectTaskComment,
 } from "../types";
 import logger from "../config/logger";
+import { io } from "..";
 
 class ProjectTaskController {
   constructor(
@@ -64,6 +65,28 @@ class ProjectTaskController {
     const newProjectTask = await this.projectTaskService.createProjectTask({
       ...projectTask,
       userId: userId as unknown as ObjectId,
+    });
+
+    io.to(projectTask.projectId as unknown as string).emit("CREATED_TASK", {
+      _id: newProjectTask._id,
+      title: newProjectTask.title,
+      description: newProjectTask.description,
+      startDate: newProjectTask.startDate,
+      endDate: newProjectTask.endDate,
+      tags: newProjectTask.tags,
+      status: newProjectTask.status,
+      priority: newProjectTask.priority,
+      userId: newProjectTask.userId,
+      projectId: newProjectTask.projectId,
+      completedDate: null,
+      assignedMembers: [],
+      commentCount: 0,
+      user: {
+        _id: userId,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+      },
     });
 
     return res.json({ message: { projectTask: newProjectTask } });
