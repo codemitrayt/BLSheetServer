@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "balance sheet backend service",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "node api/index.ts",
+    "start": "npx tsx api/index.ts",
     "dev": "nodemon api/index.ts",
     "build": "tsc",
     "vercel-build": "echo hello"
@@ -35,6 +36,7 @@
     "@types/winston": "^2.4.4",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.1",
     "typescript": "^5.5.4"
   },
   "dependencies": {
