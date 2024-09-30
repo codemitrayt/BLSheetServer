@@ -58,7 +58,7 @@ const startServer = async () => {
     await connectDB();
     logger.info("Database connected successfully.");
 
-    server.listen(PORT, () => logger.info(`Server listening on ${PORT}`));
+    app.listen(PORT, () => logger.info(`Server listening on ${PORT}`));
   } catch (error) {
     if (error instanceof Error) {
       logger.error(error.message);
