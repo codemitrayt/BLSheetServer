@@ -47,10 +47,12 @@ const corsOption: cors.CorsOptions = {
   // origin: [Config.FRONTEND_URL!],
   origin: "*",
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOption));
+app.options("*", cors(corsOption));
 
 const startServer = async () => {
   const PORT = Config.PORT;
