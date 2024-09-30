@@ -44,7 +44,8 @@ io.on("connection", (socket) => {
 });
 
 const corsOption: cors.CorsOptions = {
-  origin: [Config.FRONTEND_URL!],
+  // origin: [Config.FRONTEND_URL!],
+  origin: "*",
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
 };
