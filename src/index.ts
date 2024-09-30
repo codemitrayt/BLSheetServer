@@ -75,6 +75,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
+  logger.info({ msg: "Health" });
   return res.send("Hello from BLSheet backend!");
 });
 
