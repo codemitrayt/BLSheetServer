@@ -77,8 +77,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/api/v1/health", (req, res) => {
-  logger.info({ msg: "Data", data: req.body });
-  return res.json({ message: "Health OK" });
+  logger.info({ msg: "Health" });
+  return res.send("Hello from BLSheet backend 1!");
 });
 
 app.use("/api/v1/auth", authRoutes);
