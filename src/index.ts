@@ -15,6 +15,7 @@ import {
   projectRouters,
   projectTaskRouters,
 } from "./routes";
+import EVENTS from "./constants/events";
 
 const app = express();
 const server = createServer(app);
@@ -22,8 +23,8 @@ const server = createServer(app);
 // SOCKET CONNECTION
 export const io = new Server(server, {
   cors: {
-    // origin: [Config.FRONTEND_URL!],
-    origin: "*",
+    origin: [Config.FRONTEND_URL!],
+    // origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -45,8 +46,8 @@ io.on("connection", (socket) => {
 });
 
 const corsOption: cors.CorsOptions = {
-  // origin: [Config.FRONTEND_URL!],
-  origin: "*",
+  origin: [Config.FRONTEND_URL!],
+  // origin: "*",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -76,12 +77,12 @@ app.use(express.json());
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  logger.info({ msg: "Health" });
+  logger.info({ event: EVENTS.WORKING });
   return res.send("Hello from BLSheet backend!");
 });
 
 app.get("/hello", (req, res) => {
-  logger.info({ msg: "Health" });
+  logger.info({ event: EVENTS.HELLO });
   return res.send("Hello from BLSheet backend!");
 });
 
@@ -90,6 +91,7 @@ app.use("/api/v1/blSheet", blSheetRoutes);
 app.use("/api/v1/todo", todoRoutes);
 app.use("/api/v1/project", projectRouters);
 app.use("/api/v1/projectTask", projectTaskRouters);
+
 app.use(errorHandler);
 
 export default app;
