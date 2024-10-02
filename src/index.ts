@@ -20,7 +20,6 @@ import EVENTS from "./constants/events";
 const app = express();
 const server = createServer(app);
 
-// SOCKET CONNECTION
 export const io = new Server(server, {
   cors: {
     origin: [Config.FRONTEND_URL!],
@@ -61,7 +60,6 @@ const startServer = async () => {
   try {
     await connectDB();
     logger.info("Database connected successfully.");
-
     server.listen(PORT, () => logger.info(`Server listening on ${PORT}`));
   } catch (error) {
     if (error instanceof Error) {
@@ -70,8 +68,6 @@ const startServer = async () => {
     }
   }
 };
-
-void startServer();
 
 app.use(express.json());
 app.use(express.static("public"));
@@ -93,5 +89,7 @@ app.use("/api/v1/project", projectRouters);
 app.use("/api/v1/projectTask", projectTaskRouters);
 
 app.use(errorHandler);
+
+void startServer();
 
 export default app;
