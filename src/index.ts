@@ -21,7 +21,9 @@ const server = createServer(app);
 
 export const io = new Server(server, {
   cors: {
-    origin: [Config.FRONTEND_URL!],
+    // origin: [Config.FRONTEND_URL!],
+    origin: "*",
+    methods: ["GET", "POST"],
     credentials: true,
   },
   transports: ["websocket"],
@@ -42,12 +44,15 @@ io.on("connection", (socket) => {
 });
 
 const corsOption: cors.CorsOptions = {
-  origin: [Config.FRONTEND_URL!],
+  // origin: [Config.FRONTEND_URL!],
+  origin: "*",
   credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOption));
+app.options("*", cors(corsOption));
 
 const startServer = async () => {
   const PORT = Config.PORT;
@@ -65,6 +70,16 @@ const startServer = async () => {
 
 app.use(express.json());
 app.use(express.static("public"));
+
+app.get("/", (req, res) => {
+  logger.info({ msg: "Health" });
+  return res.send("Hello from BLSheet backend!");
+});
+
+app.get("/hello", (req, res) => {
+  logger.info({ msg: "Health" });
+  return res.send("Hello from BLSheet backend!");
+});
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/blSheet", blSheetRoutes);

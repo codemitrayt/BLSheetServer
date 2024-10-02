@@ -5,6 +5,7 @@ import validators from "../validator";
 import { UserModel } from "../model";
 import { AuthController } from "../controllers";
 import { authenticateJwt } from "../middleware";
+import logger from "../config/logger";
 import {
   AuthService,
   NotificationService,
@@ -29,7 +30,8 @@ const authController = new AuthController(
   authService,
   notificationService,
   tokenService,
-  hashService
+  hashService,
+  logger
 );
 
 authRouter.post(

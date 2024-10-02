@@ -18,6 +18,7 @@ import { ProjectTaskController } from "../controllers";
 import asyncFnHandler from "../utils/async-fn-handler";
 import authenticateJWT from "../middleware/autenticate-jwt";
 import validators from "../validator";
+import logger from "../config/logger";
 
 const projectTaskRouter = express.Router();
 
@@ -32,7 +33,8 @@ const projectTaskController = new ProjectTaskController(
   projectService,
   projectTaskService,
   projectMemberService,
-  commentService
+  commentService,
+  logger
 );
 
 projectTaskRouter.post(

@@ -1,8 +1,10 @@
 import { ObjectId } from "mongoose";
 import { NextFunction, Response } from "express";
-import createHttpError from "http-errors";
 import { validationResult } from "express-validator";
+import { Logger } from "winston";
+import createHttpError from "http-errors";
 
+import { io } from "..";
 import {
   AuthService,
   CommentService,
@@ -16,7 +18,7 @@ import {
   ProjectTask,
   ProjectTaskComment,
 } from "../types";
-import logger from "../config/logger";
+import EVENTS from "../constants/events";
 
 class ProjectTaskController {
   constructor(
@@ -24,7 +26,8 @@ class ProjectTaskController {
     private projectService: ProjectService,
     private projectTaskService: ProjectTaskService,
     private projectMemberService: ProjectMemberService,
-    private commentService: CommentService
+    private commentService: CommentService,
+    private logger: Logger
   ) {}
 
   async createProjectTask(
@@ -32,6 +35,7 @@ class ProjectTaskController {
     res: Response,
     next: NextFunction
   ) {
+    /** Validate requrest body */
     const result = validationResult(req);
     if (!result.isEmpty())
       return next(createHttpError(400, result.array()[0].msg as string));
@@ -39,31 +43,65 @@ class ProjectTaskController {
     const userId = req.userId as string;
     const projectTask = req.body;
 
-    logger.info({ userId, projectTask });
-
+    /** Check user */
     const user = await this.authService.findByUserId(userId);
     if (!user) {
       return next(createHttpError(400, "User not found"));
     }
 
+    this.logger.info({
+      event: EVENTS.CREATE_PROJECT_TASK,
+      data: { projectTask, email: user.email },
+    });
+
+    /** Check project */
     const project = await this.projectService.findProjectById(
       projectTask.projectId as unknown as string
     );
     if (!project) return next(createHttpError(400, "Project not found"));
 
+    /** Check if user is a member of the project */
     const isProjectMember =
       await this.projectMemberService.findMemberByUserIdAndProjectId(
         userId,
         projectTask.projectId as unknown as string
       );
-
     if (!isProjectMember) {
-      return next(createHttpError(403, "User is not a member of the project"));
+      return next(
+        createHttpError(
+          403,
+          "You do not have permission to access this project task"
+        )
+      );
     }
 
+    /** Create project task */
     const newProjectTask = await this.projectTaskService.createProjectTask({
       ...projectTask,
       userId: userId as unknown as ObjectId,
+    });
+
+    /** Socket event emit for create task */
+    io.to(projectTask.projectId as unknown as string).emit("CREATED_TASK", {
+      _id: newProjectTask._id,
+      title: newProjectTask.title,
+      description: newProjectTask.description,
+      startDate: newProjectTask.startDate,
+      endDate: newProjectTask.endDate,
+      tags: newProjectTask.tags,
+      status: newProjectTask.status,
+      priority: newProjectTask.priority,
+      userId: newProjectTask.userId,
+      projectId: newProjectTask.projectId,
+      completedDate: null,
+      assignedMembers: [],
+      commentCount: 0,
+      user: {
+        _id: userId,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+      },
     });
 
     return res.json({ message: { projectTask: newProjectTask } });
@@ -74,6 +112,7 @@ class ProjectTaskController {
     res: Response,
     next: NextFunction
   ) {
+    /** Validate request body */
     const result = validationResult(req);
     if (!result.isEmpty())
       return next(createHttpError(400, result.array()[0].msg as string));
@@ -81,14 +120,19 @@ class ProjectTaskController {
     const userId = req.userId as string;
     const { objectId: projectId } = req.body;
 
+    this.logger.info({ event: EVENTS.GET_PROJECT_TASKS, data: { userId } });
+
+    /** Check user */
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(400, "User not found"));
 
+    /** Check project */
     const project = await this.projectService.findProjectById(
       projectId as unknown as string
     );
     if (!project) return next(createHttpError(400, "Project not found"));
 
+    /** Check if user is a member of the project */
     const isProjectMember =
       await this.projectMemberService.findMemberByUserIdAndProjectId(
         userId,
@@ -97,11 +141,12 @@ class ProjectTaskController {
     if (!isProjectMember)
       return next(
         createHttpError(
-          400,
-          "You do not have permission to get this project task"
+          403,
+          "You do not have permission to access this project task"
         )
       );
 
+    /**  Get project task */
     const projectTasks =
       await this.projectTaskService.getProjectTasksByProjectId(
         projectId as unknown as string,
@@ -122,6 +167,7 @@ class ProjectTaskController {
     res: Response,
     next: NextFunction
   ) {
+    /** Validate request body */
     const result = validationResult(req);
     if (!result.isEmpty())
       return next(createHttpError(400, result.array()[0].msg as string));
@@ -129,22 +175,29 @@ class ProjectTaskController {
     const userId = req.userId as string;
     const projectTaskId = req.query.objectId as string;
 
-    logger.info({ key: "Delete Project Task", userId, projectTaskId });
+    this.logger.info({
+      event: EVENTS.DELETE_PROJECT_TASK,
+      data: { userId, projectTaskId },
+    });
 
+    /** Check user */
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(400, "User not found"));
 
+    /** Check project task */
     const projectTask = await this.projectTaskService.getProjectTaskById(
       projectTaskId as unknown as string
     );
     if (!projectTask)
       return next(createHttpError(400, "Project task not found"));
 
+    /** Check project */
     const project = await this.projectService.getProjectById(
       projectTask?.projectId as unknown as string,
       userId
     );
 
+    /** Check Permission */
     if (project.isAdmin) {
       await this.projectTaskService.deleteProjectTaskById(projectTaskId);
       return res.json({ message: { projectTaskId } });
@@ -154,7 +207,7 @@ class ProjectTaskController {
       return next(
         createHttpError(
           403,
-          "You do not have permission to delete this project task"
+          "You do not have permission to access this project task"
         )
       );
     }
@@ -168,6 +221,7 @@ class ProjectTaskController {
     res: Response,
     next: NextFunction
   ) {
+    /** Validate request body */
     const result = validationResult(req);
     if (!result.isEmpty())
       return next(createHttpError(400, result.array()[0].msg as string));
@@ -176,27 +230,11 @@ class ProjectTaskController {
     const { objectId: projectTaskId } = req.query;
     const updatedProjectTask = req.body;
 
+    /** Check user */
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(400, "User not found"));
 
-    const projectTask =
-      await this.projectTaskService.getProjectTaskByIdAndUserId(
-        projectTaskId as unknown as string,
-        userId
-      );
-
-    // if (!projectTask)
-    //   return next(createHttpError(400, "Project task not found"));
-
-    // if (projectTask.userId.toString() !== userId) {
-    //   return next(
-    //     createHttpError(
-    //       403,
-    //       "You do not have permission to update this project task"
-    //     )
-    //   );
-    // }
-
+    /** Update project task */
     await this.projectTaskService.updateProjectTask(
       projectTaskId as string,
       updatedProjectTask
@@ -210,6 +248,7 @@ class ProjectTaskController {
     res: Response,
     next: NextFunction
   ) {
+    /** Validate request body */
     const result = validationResult(req);
     if (!result.isEmpty())
       return next(createHttpError(400, result.array()[0].msg as string));
@@ -217,16 +256,22 @@ class ProjectTaskController {
     const userId = req.userId as string;
     const { memberEmailId, projectId, projectTaskId } = req.body;
 
-    logger.info({ userId, memberEmailId, projectId, projectTaskId });
+    this.logger.info({
+      event: EVENTS.ASSIGN_MEMBER_TO_PROJECT_TASK,
+      data: { userId, projectId, projectTaskId },
+    });
 
+    /** Check user */
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(400, "User not found"));
 
+    /** Check project  */
     const project = await this.projectService.findProjectById(
       projectId as unknown as string
     );
     if (!project) return next(createHttpError(400, "Project not found"));
 
+    /** Check project member */
     const projectMember =
       await this.projectMemberService.getProjectMemberByEmailIdAndProjectId(
         memberEmailId,
@@ -236,6 +281,7 @@ class ProjectTaskController {
       return next(createHttpError(403, "User is not a member of the project"));
     }
 
+    /** Check if user is already assigned to the project task */
     const projectTask = await this.projectTaskService.getProjectTaskById(
       projectTaskId
     );
@@ -255,6 +301,7 @@ class ProjectTaskController {
     res: Response,
     next: NextFunction
   ) {
+    /** Validate request validator */
     const result = validationResult(req);
     if (!result.isEmpty())
       return next(createHttpError(400, result.array()[0].msg as string));
@@ -262,9 +309,11 @@ class ProjectTaskController {
     const userId = req.userId as string;
     const { projectId, projectTaskId, memberEmailId } = req.body;
 
+    /** Check user */
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(400, "User not found"));
 
+    /** Check project task */
     const projectTask =
       await this.projectTaskService.getProjectTaskByIdAndUserId(
         projectTaskId,
@@ -273,11 +322,13 @@ class ProjectTaskController {
     if (!projectTask)
       return next(createHttpError(400, "Project task not found"));
 
+    /** Check project */
     const project = await this.projectService.getProjectById(
       projectTask?.projectId as unknown as string,
       userId
     );
 
+    /** Check member */
     const member =
       await this.projectMemberService.getProjectMemberByEmailIdAndProjectId(
         memberEmailId,
@@ -290,11 +341,11 @@ class ProjectTaskController {
         projectTask._id as unknown as string,
         member._id as unknown as string
       );
-      return res.json({ message: "User removed successfully" });
+      return res.json({ message: "Assign member removed successfully." });
     }
 
     return next(
-      createHttpError(400, "You do not have permission to remove user.")
+      createHttpError(403, "You do not have permission to remove user.")
     );
   }
 
@@ -303,6 +354,7 @@ class ProjectTaskController {
     res: Response,
     next: NextFunction
   ) {
+    /** Validate request body */
     const result = validationResult(req);
     if (!result.isEmpty())
       return next(createHttpError(400, result.array()[0].msg as string));
@@ -310,15 +362,23 @@ class ProjectTaskController {
     const userId = req.userId as string;
     const { projectTaskId, content, projectId } = req.body;
 
+    this.logger.info({
+      event: EVENTS.CREATE_PROJECT_TASK_COMMENT,
+      data: { userId, projectTaskId, projectId, content },
+    });
+
+    /** Check User */
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(400, "User not found"));
 
+    /** Check Project Task */
     const projectTask = await this.projectTaskService.getProjectTaskById(
       projectTaskId as unknown as string
     );
     if (!projectTask)
       return next(createHttpError(400, "Project task not found"));
 
+    /** Check Member */
     const isMemberExist = await this.projectMemberService.getProjectMember(
       projectId,
       user.email
@@ -327,10 +387,13 @@ class ProjectTaskController {
       return next(createHttpError(403, "User is not a member of the project"));
     }
 
+    /** Create Comment */
     const comment = await this.commentService.createComment({
       content,
       userId: userId as unknown as ObjectId,
     });
+
+    // TODO: add socket io
 
     await this.projectTaskService.addComment(
       projectTaskId as string,
@@ -348,6 +411,12 @@ class ProjectTaskController {
     const userId = req.userId as string;
     const { projectTaskId } = req.body;
 
+    this.logger.info({
+      event: EVENTS.GET_PROJECT_TASK_COMMENT,
+      data: { userId },
+    });
+
+    /** Check Project Task */
     const projectTask = await this.projectTaskService.getProjectTaskById(
       projectTaskId as unknown as string
     );
@@ -374,22 +443,27 @@ class ProjectTaskController {
     const userId = req.userId as string;
     const { projectId, projectTaskId, commentId } = req.body;
 
-    logger.info({ projectId, projectTaskId, commentId });
+    this.logger.info({
+      event: EVENTS.DELETE_PROJECT_TASK_COMMENT,
+      data: { projectId, projectTaskId, commentId },
+    });
 
+    /** Check Project */
     const project = await this.projectService.findProjectById(projectId);
     if (!project) return next(createHttpError(400, "Project not found"));
 
+    /** Check Project Task */
     const projectTask = await this.projectTaskService.getProjectTaskById(
       projectTaskId as unknown as string
     );
     if (!projectTask)
       return next(createHttpError(400, "Project task not found"));
 
+    /** Check Comment */
     const comment = await this.commentService.getCommentById(commentId);
     if (!comment) return next(createHttpError(400, "Comment not found"));
 
-    logger.info({ projectUserId: project.userId, userId });
-
+    /** Check Permission */
     if (
       comment.userId.toString() !== userId &&
       project.userId.toString() !== userId
@@ -417,6 +491,7 @@ class ProjectTaskController {
     res: Response,
     next: NextFunction
   ) {
+    /** Validate request body */
     const result = validationResult(req);
     if (!result.isEmpty())
       return next(createHttpError(400, result.array()[0].msg as string));
@@ -424,17 +499,27 @@ class ProjectTaskController {
     const userId = req.userId as string;
     const { projectTaskId, content, commentId, projectId } = req.body;
 
+    this.logger.info({
+      event: EVENTS.UPDATE_PROJECT_TASK_COMMENT,
+      data: { userId, content, commentId },
+    });
+
+    /** Check project task */
     const projectTask = await this.projectTaskService.getProjectTaskById(
       projectTaskId as unknown as string
     );
     if (!projectTask)
       return next(createHttpError(400, "Project task not found"));
 
+    /** Check comment */
     const comment = await this.commentService.getCommentById(commentId);
     if (!comment) return next(createHttpError(400, "Comment not found"));
 
+    /** Check project */
     const project = await this.projectService.getProjectById(projectId, userId);
+    if (!project) return next(createHttpError(400, "Project not found"));
 
+    /** Check permission  */
     if (comment.userId.toString() !== userId && !project.isAdmin) {
       return next(
         createHttpError(
@@ -444,6 +529,7 @@ class ProjectTaskController {
       );
     }
 
+    /** Update comment */
     const updatedComment = await this.commentService.updateComment(commentId, {
       content,
     });
@@ -458,15 +544,18 @@ class ProjectTaskController {
     const userId = req.userId as string;
     const { projectId } = req.body;
 
+    /** Check user */
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(400, "User not found"));
 
+    /** Check project */
     const project = await this.projectService.getProjectById(
       projectId as unknown as string,
       userId
     );
     if (!project) return next(createHttpError(400, "Project not found"));
 
+    /** Check Member */
     const member =
       await this.projectMemberService.findMemberByUserIdAndProjectId(
         userId,
@@ -474,6 +563,7 @@ class ProjectTaskController {
       );
     if (!member) return next(createHttpError(400, "Member not found"));
 
+    /** Get Project Task */
     const projectTasks = await this.projectTaskService.getProjectTasksByUserId(
       projectId as unknown as string,
       member._id as string
