@@ -175,6 +175,7 @@ class ProjectTaskService {
               else: false,
             },
           },
+          "commentsDetails.replyCount": { $size: "$commentsDetails.replies" },
         },
       },
       {
@@ -187,6 +188,7 @@ class ProjectTaskService {
           "commentsDetails.author.createdAt": 0,
           "commentsDetails.author.updatedAt": 0,
           "commentsDetails.author.role": 0,
+          "commentsDetails.replies": 0,
         },
       },
       {
