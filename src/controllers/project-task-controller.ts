@@ -571,6 +571,73 @@ class ProjectTaskController {
 
     return res.json({ message: { projectTasks } });
   }
+
+  async replyToProjectTaskComment(
+    req: CustomRequest<{
+      commentId: string;
+      content: string;
+    }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req.userId as string;
+    const { commentId, content } = req.body;
+
+    this.logger.info({
+      event: EVENTS.REPLY_TO_PROJECT_TASK_COMMENT,
+      data: { userId, commentId, content },
+    });
+
+    /** Check User */
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    /** Check Comment */
+    const comment = await this.commentService.getCommentById(commentId);
+    if (!comment) return next(createHttpError(400, "Comment not found"));
+
+    /** Create comment */
+    const replyCooment = await this.commentService.createComment({
+      content,
+      userId: userId as unknown as ObjectId,
+    });
+
+    /** Add reply comment */
+    const reply = await this.commentService.replyToComment(
+      commentId,
+      replyCooment._id as unknown as ObjectId
+    );
+
+    return res.json({ message: { reply: replyCooment } });
+  }
+
+  async getProjectTaskCommentReplies(
+    req: CustomRequest<{
+      commentId: string;
+    }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req.userId as string;
+    const { commentId } = req.body;
+
+    this.logger.info({
+      event: EVENTS.GET_PROJECT_TASK_COMMENT_REPLIES,
+      data: { userId, commentId },
+    });
+
+    /** Check User */
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    /** Check Comment */
+    const comment = await this.commentService.getCommentById(commentId);
+    if (!comment) return next(createHttpError(400, "Comment not found"));
+
+    const replies = await this.commentService.getReplies(commentId, userId);
+
+    return res.json({ message: { projectTaskComment: replies } });
+  }
 }
 
 export default ProjectTaskController;
