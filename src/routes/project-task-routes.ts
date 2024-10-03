@@ -132,4 +132,20 @@ projectTaskRouter.post(
   )
 );
 
+projectTaskRouter.post(
+  "/replyToProjectTaskComment",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectTaskController.replyToProjectTaskComment(req, res, next)
+  )
+);
+
+projectTaskRouter.post(
+  "/getProjectTaskCommentReplies",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectTaskController.getProjectTaskCommentReplies(req, res, next)
+  )
+);
+
 export default projectTaskRouter;
