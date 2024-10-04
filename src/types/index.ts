@@ -5,6 +5,7 @@ import { Document, ObjectId } from "mongoose";
 export enum UserRoleType {
   ADMIN = "admin",
   CUSTOMER = "customer",
+  GUEST = "guest",
 }
 
 export enum SheetType {
