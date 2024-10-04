@@ -436,12 +436,13 @@ class ProjectTaskController {
       projectId: string;
       projectTaskId: string;
       commentId: string;
+      parentCommentId?: string;
     }>,
     res: Response,
     next: NextFunction
   ) {
     const userId = req.userId as string;
-    const { projectId, projectTaskId, commentId } = req.body;
+    const { projectId, projectTaskId, commentId, parentCommentId } = req.body;
 
     this.logger.info({
       event: EVENTS.DELETE_PROJECT_TASK_COMMENT,
@@ -477,6 +478,10 @@ class ProjectTaskController {
     }
 
     await this.commentService.deleteComment(commentId);
+
+    if (parentCommentId) {
+      await this.commentService.removeReply(parentCommentId, commentId);
+    }
 
     await this.projectTaskService.removeComment(
       projectTaskId as string,
