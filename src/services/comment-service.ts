@@ -106,6 +106,14 @@ class CommentService {
     if (result.length) return result[0];
     return [];
   }
+
+  async removeReply(parentCommentId: string, commentId: string) {
+    return await this.commentModel.findByIdAndUpdate(
+      parentCommentId,
+      { $pull: { replies: new mongoose.Types.ObjectId(commentId) } },
+      { new: true }
+    );
+  }
 }
 
 export default CommentService;
