@@ -1,6 +1,6 @@
 import mongoose, { PipelineStage } from "mongoose";
 import { ProjectTaskModel } from "../model";
-import { ProjectTask } from "../types";
+import { ProjectTask, ProjectTaskPriority } from "../types";
 
 class ProjectTaskService {
   constructor(private projectTaskModel: typeof ProjectTaskModel) {}
@@ -8,11 +8,18 @@ class ProjectTaskService {
   async getProjectTasksByProjectId(
     projectId: string,
     userId: string,
-    memberId: string
+    memberId: string,
+    query: { search: string; priority: ProjectTaskPriority }
   ) {
+    let searchQuery = new RegExp(query.search, "i");
+
     const pipeline: PipelineStage[] = [
       {
-        $match: { projectId: new mongoose.Types.ObjectId(projectId) },
+        $match: {
+          projectId: new mongoose.Types.ObjectId(projectId),
+          title: { $regex: searchQuery },
+          ...(query?.priority && { priority: query.priority }),
+        },
       },
       {
         $lookup: {

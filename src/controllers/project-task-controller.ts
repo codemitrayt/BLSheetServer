@@ -17,6 +17,7 @@ import {
   CustomRequest,
   ProjectTask,
   ProjectTaskComment,
+  ProjectTaskPriority,
 } from "../types";
 import EVENTS from "../constants/events";
 
@@ -119,6 +120,10 @@ class ProjectTaskController {
 
     const userId = req.userId as string;
     const { objectId: projectId } = req.body;
+    const query = req.query as {
+      search: string;
+      priority: ProjectTaskPriority;
+    };
 
     this.logger.info({ event: EVENTS.GET_PROJECT_TASKS, data: { userId } });
 
@@ -151,7 +156,8 @@ class ProjectTaskController {
       await this.projectTaskService.getProjectTasksByProjectId(
         projectId as unknown as string,
         userId,
-        isProjectMember._id as unknown as string
+        isProjectMember._id as unknown as string,
+        query
       );
 
     return res.json({
