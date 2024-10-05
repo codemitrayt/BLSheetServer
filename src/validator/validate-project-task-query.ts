@@ -30,6 +30,24 @@ const getProjectTaskQueryValidator = checkSchema(
       },
     },
 
+    isSort: {
+      customSanitizer: {
+        options: (value) => {
+          if (!value) return false;
+          return true;
+        },
+      },
+    },
+
+    isAssignedToMe: {
+      customSanitizer: {
+        options: (value) => {
+          if (!value) return false;
+          return true;
+        },
+      },
+    },
+
     perPage: {
       customSanitizer: {
         options: (value) => {

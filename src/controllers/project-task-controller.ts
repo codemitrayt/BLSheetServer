@@ -120,9 +120,11 @@ class ProjectTaskController {
 
     const userId = req.userId as string;
     const { objectId: projectId } = req.body;
-    const query = req.query as {
+    const query = req.query as unknown as {
       search: string;
       priority: ProjectTaskPriority;
+      isSort: boolean;
+      isAssignedToMe: boolean;
     };
 
     this.logger.info({ event: EVENTS.GET_PROJECT_TASKS, data: { userId } });

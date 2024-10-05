@@ -9,7 +9,12 @@ class ProjectTaskService {
     projectId: string,
     userId: string,
     memberId: string,
-    query: { search: string; priority: ProjectTaskPriority }
+    query: {
+      search: string;
+      priority: ProjectTaskPriority;
+      isAssignedToMe: boolean;
+      isSort: boolean;
+    }
   ) {
     let searchQuery = new RegExp(query.search, "i");
 
@@ -19,6 +24,7 @@ class ProjectTaskService {
           projectId: new mongoose.Types.ObjectId(projectId),
           title: { $regex: searchQuery },
           ...(query?.priority && { priority: query.priority }),
+          ...(query.isAssignedToMe && { assignedTo: { $in: [memberId] } }),
         },
       },
       {
@@ -68,6 +74,7 @@ class ProjectTaskService {
           attachments: 1,
           assignedMembers: 1,
           commentCount: 1,
+          createdAt: 1,
           user: {
             _id: "$user._id",
             fullName: "$user.fullName",
@@ -75,6 +82,7 @@ class ProjectTaskService {
           },
         },
       },
+      { $sort: { createdAt: query?.isSort ? 1 : -1 } },
       {
         $addFields: {
           isCreator: { $eq: ["$userId", new mongoose.Types.ObjectId(userId)] },
