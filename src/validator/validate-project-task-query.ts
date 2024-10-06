@@ -33,7 +33,7 @@ const getProjectTaskQueryValidator = checkSchema(
     isSort: {
       customSanitizer: {
         options: (value) => {
-          if (!value) return false;
+          if (!value || value === "false") return false;
           return true;
         },
       },
@@ -42,7 +42,16 @@ const getProjectTaskQueryValidator = checkSchema(
     isAssignedToMe: {
       customSanitizer: {
         options: (value) => {
-          if (!value) return false;
+          if (!value || value === "false") return false;
+          return true;
+        },
+      },
+    },
+
+    isCreatedByMe: {
+      customSanitizer: {
+        options: (value) => {
+          if (!value || value === "false") return false;
           return true;
         },
       },

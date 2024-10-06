@@ -125,6 +125,7 @@ class ProjectTaskController {
       priority: ProjectTaskPriority;
       isSort: boolean;
       isAssignedToMe: boolean;
+      isCreatedByMe: boolean;
     };
 
     this.logger.info({ event: EVENTS.GET_PROJECT_TASKS, data: { userId } });

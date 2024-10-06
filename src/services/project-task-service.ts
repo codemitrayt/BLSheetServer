@@ -14,17 +14,27 @@ class ProjectTaskService {
       priority: ProjectTaskPriority;
       isAssignedToMe: boolean;
       isSort: boolean;
+      isCreatedByMe: boolean;
     }
   ) {
     let searchQuery = new RegExp(query.search, "i");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     const pipeline: PipelineStage[] = [
       {
         $match: {
           projectId: new mongoose.Types.ObjectId(projectId),
+          ...(query?.isCreatedByMe && {
+            userId: new mongoose.Types.ObjectId(userId),
+          }),
           title: { $regex: searchQuery },
           ...(query?.priority && { priority: query.priority }),
           ...(query.isAssignedToMe && { assignedTo: { $in: [memberId] } }),
+          $or: [
+            { status: { $in: ["todo", "in_progress", "under_review"] } },
+            { status: "completed", updatedAt: { $gte: today } },
+          ],
         },
       },
       {
@@ -94,9 +104,35 @@ class ProjectTaskService {
           },
         },
       },
+      {
+        $group: {
+          _id: "$status",
+          tasks: { $push: "$$ROOT" },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          statuses: {
+            $push: {
+              k: "$_id",
+              v: { tasks: "$tasks", count: "$count" },
+            },
+          },
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $arrayToObject: "$statuses",
+          },
+        },
+      },
     ];
     const result = await this.projectTaskModel.aggregate(pipeline).exec();
-    return result;
+    if (result.length) return result[0];
+    return {};
   }
 
   async getProjectTaskById(taskId: string) {
