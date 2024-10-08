@@ -5,6 +5,7 @@ import { Document, ObjectId } from "mongoose";
 export enum UserRoleType {
   ADMIN = "admin",
   CUSTOMER = "customer",
+  GUEST = "guest",
 }
 
 export enum SheetType {
@@ -220,4 +221,29 @@ export interface ProjectTaskComment {
   projectTaskId: string;
   content: string;
   projectId: string;
+}
+
+// ISSUE
+
+export enum IssueStatus {
+  OPEN = "open",
+  CLOSED = "closed",
+}
+
+export enum IssuePriority {
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high",
+}
+
+export interface Issue {
+  title: string;
+  description: string;
+  status: IssueStatus;
+  priority: IssuePriority;
+  userId: ObjectId;
+  projectId: ObjectId;
+  closedIssueDate: Date;
+  labels: string[];
+  assignees: ObjectId[];
 }

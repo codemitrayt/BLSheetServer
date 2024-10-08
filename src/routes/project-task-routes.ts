@@ -49,6 +49,7 @@ projectTaskRouter.post(
 projectTaskRouter.post(
   "/getProjectTasks",
   validators.objectIdBodyValidator,
+  validators.getProjectTaskQueryValidator,
   authenticateJWT,
   asyncFnHandler((req, res, next) =>
     projectTaskController.getProjectTasks(req, res, next)

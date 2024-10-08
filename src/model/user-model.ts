@@ -16,7 +16,7 @@ const userShecma = new Schema<CustomModel<User>>(
 
     role: {
       type: String,
-      enum: ["admin", "customer"],
+      enum: ["admin", "customer", "guest"],
       default: "customer",
     },
 

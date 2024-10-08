@@ -17,6 +17,7 @@ import {
   CustomRequest,
   ProjectTask,
   ProjectTaskComment,
+  ProjectTaskPriority,
 } from "../types";
 import EVENTS from "../constants/events";
 
@@ -119,6 +120,13 @@ class ProjectTaskController {
 
     const userId = req.userId as string;
     const { objectId: projectId } = req.body;
+    const query = req.query as unknown as {
+      search: string;
+      priority: ProjectTaskPriority;
+      isSort: boolean;
+      isAssignedToMe: boolean;
+      isCreatedByMe: boolean;
+    };
 
     this.logger.info({ event: EVENTS.GET_PROJECT_TASKS, data: { userId } });
 
@@ -151,7 +159,8 @@ class ProjectTaskController {
       await this.projectTaskService.getProjectTasksByProjectId(
         projectId as unknown as string,
         userId,
-        isProjectMember._id as unknown as string
+        isProjectMember._id as unknown as string,
+        query
       );
 
     return res.json({
@@ -436,12 +445,13 @@ class ProjectTaskController {
       projectId: string;
       projectTaskId: string;
       commentId: string;
+      parentCommentId?: string;
     }>,
     res: Response,
     next: NextFunction
   ) {
     const userId = req.userId as string;
-    const { projectId, projectTaskId, commentId } = req.body;
+    const { projectId, projectTaskId, commentId, parentCommentId } = req.body;
 
     this.logger.info({
       event: EVENTS.DELETE_PROJECT_TASK_COMMENT,
@@ -477,6 +487,10 @@ class ProjectTaskController {
     }
 
     await this.commentService.deleteComment(commentId);
+
+    if (parentCommentId) {
+      await this.commentService.removeReply(parentCommentId, commentId);
+    }
 
     await this.projectTaskService.removeComment(
       projectTaskId as string,

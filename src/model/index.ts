@@ -5,6 +5,7 @@ import ProjectModel from "./project-model";
 import ProjectMemberModel from "./project-member-model";
 import ProjectTaskModel from "./project-task-model";
 import CommentModel from "./comment-model";
+import IssueModel from "./issue-model";
 
 export {
   UserModel,
@@ -14,4 +15,5 @@ export {
   ProjectMemberModel,
   ProjectTaskModel,
   CommentModel,
+  IssueModel,
 };

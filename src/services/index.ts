@@ -8,6 +8,7 @@ import ProjectService from "./project-service";
 import ProjectMemberService from "./project-member-service";
 import ProjectTaskService from "./project-task-service";
 import CommentService from "./comment-service";
+import IssueService from "./issue-service";
 
 export {
   AuthService,
@@ -20,4 +21,5 @@ export {
   ProjectMemberService,
   ProjectTaskService,
   CommentService,
+  IssueService,
 };
