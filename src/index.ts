@@ -14,6 +14,7 @@ import {
   blSheetRoutes,
   projectRouters,
   projectTaskRouters,
+  issueRouters,
 } from "./routes";
 import EVENTS from "./constants/events";
 
@@ -91,6 +92,7 @@ app.use("/api/v1/blSheet", blSheetRoutes);
 app.use("/api/v1/todo", todoRoutes);
 app.use("/api/v1/project", projectRouters);
 app.use("/api/v1/projectTask", projectTaskRouters);
+app.use("/api/v1/issue", issueRouters);
 
 app.use(errorHandler);
 
