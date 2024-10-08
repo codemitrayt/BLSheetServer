@@ -222,3 +222,28 @@ export interface ProjectTaskComment {
   content: string;
   projectId: string;
 }
+
+// ISSUE
+
+export enum IssueStatus {
+  OPEN = "open",
+  CLOSED = "closed",
+}
+
+export enum IssuePriority {
+  LOW = "low",
+  MEDIUM = "medium",
+  HIGH = "high",
+}
+
+export interface Issue {
+  title: string;
+  description: string;
+  status: IssueStatus;
+  priority: IssuePriority;
+  userId: ObjectId;
+  projectId: ObjectId;
+  closedIssueDate: Date;
+  labels: string[];
+  assignees: ObjectId[];
+}
