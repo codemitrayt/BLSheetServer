@@ -1,12 +1,12 @@
 import nodemailer, { TransportOptions } from "nodemailer";
-import { Resend } from "resend";
+// import { Resend } from "resend";
 
 import Config from "../config";
 import { Message } from "../types";
 
 class NotificationService {
   private transporter;
-  private resend;
+  // private resend;
   constructor() {
     this.transporter = nodemailer.createTransport({
       host: Config.MAIL_HOST,
@@ -18,7 +18,7 @@ class NotificationService {
       },
     } as TransportOptions);
 
-    this.resend = new Resend(Config.RESEND_API_KEY!);
+    // this.resend = new Resend(Config.RESEND_API_KEY!);
   }
 
   async send(message: Message) {
@@ -31,16 +31,16 @@ class NotificationService {
     });
   }
 
-  async sendWithResend(message: Message) {
-    const { error, data } = await this.resend.emails.send({
-      from: Config.MAIL_FROM!,
-      to: [message.to],
-      subject: message.subject!,
-      html: message.html!,
-    });
-    console.log("Error", error, data);
-    if (error) throw Error("Email send failed");
-  }
+  // async sendWithResend(message: Message) {
+  //   const { error, data } = await this.resend.emails.send({
+  //     from: Config.MAIL_FROM!,
+  //     to: [message.to],
+  //     subject: message.subject!,
+  //     html: message.html!,
+  //   });
+  //   console.log("Error", error, data);
+  //   if (error) throw Error("Email send failed");
+  // }
 }
 
 export default NotificationService;
