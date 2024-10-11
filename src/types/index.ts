@@ -248,3 +248,12 @@ export interface Issue {
   assignees: ObjectId[];
   comments: ObjectId[];
 }
+
+export interface GetProjectTaskQuery {
+  search: string;
+  priority: ProjectTaskPriority;
+  isSort: boolean;
+  isAssignedToMe: boolean;
+  isCreatedByMe: boolean;
+  onlyCompleted: boolean;
+}
