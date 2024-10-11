@@ -13,6 +13,7 @@ const {
   JWT_SECRET,
   BACKEND_URL,
   FRONTEND_URL,
+  RESEND_API_KEY,
 } = process.env;
 
 const Config = {
@@ -27,6 +28,7 @@ const Config = {
   JWT_SECRET,
   BACKEND_URL,
   FRONTEND_URL,
+  RESEND_API_KEY,
 };
 
 export default Config;
