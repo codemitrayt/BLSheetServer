@@ -63,8 +63,6 @@ class IssueService {
     query: GetIssuesQuery
   ) {
     let searchQuery = new RegExp(query.search, "i");
-    console.log(query);
-
     const pipeline: PipelineStage[] = [
       {
         $match: {

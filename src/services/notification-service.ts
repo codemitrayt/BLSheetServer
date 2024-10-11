@@ -38,7 +38,6 @@ class NotificationService {
   //     subject: message.subject!,
   //     html: message.html!,
   //   });
-  //   console.log("Error", error, data);
   //   if (error) throw Error("Email send failed");
   // }
 }
