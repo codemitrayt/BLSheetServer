@@ -257,3 +257,15 @@ export interface GetProjectTaskQuery {
   isCreatedByMe: boolean;
   onlyCompleted: boolean;
 }
+
+export interface GetIssuesQuery {
+  search: string;
+  priority: string;
+  currentPage: number;
+  isSort: boolean;
+  isAssignedToMe: boolean;
+  isCreatedByMe: boolean;
+  status: string;
+  labels: string[];
+  perPage: number;
+}
