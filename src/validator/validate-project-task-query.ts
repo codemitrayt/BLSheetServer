@@ -57,6 +57,15 @@ const getProjectTaskQueryValidator = checkSchema(
       },
     },
 
+    onlyCompleted: {
+      customSanitizer: {
+        options: (value) => {
+          if (!value || value === "false") return false;
+          return true;
+        },
+      },
+    },
+
     perPage: {
       customSanitizer: {
         options: (value) => {
