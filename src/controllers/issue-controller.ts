@@ -29,7 +29,7 @@ class IssueController {
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(401, "Unauthorized"));
 
-    const issue = await this.issueService.findIssueById(issueId);
+    const issue = await this.issueService.findIssueById(issueId, userId);
     if (!issue) return next(createHttpError(400, "Issue not found"));
 
     res.json({ message: { issue } });
