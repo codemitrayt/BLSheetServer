@@ -246,4 +246,5 @@ export interface Issue {
   closedIssueDate: Date;
   labels: string[];
   assignees: ObjectId[];
+  comments: ObjectId[];
 }
