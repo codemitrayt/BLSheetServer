@@ -83,6 +83,7 @@ class ProjectTaskService {
           assignedMembers: 1,
           commentCount: 1,
           createdAt: 1,
+          subtasks: 1,
           user: {
             _id: "$user._id",
             fullName: "$user.fullName",
