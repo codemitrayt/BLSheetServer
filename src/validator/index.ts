@@ -21,6 +21,7 @@ import projectTaskBodyValidator from "./validate-project-task-body";
 import getProjectMemberQueryValidator from "./validate-get-project-member-query";
 import assignMemberToProjectTaskBodyValidator from "./validate-assign-member-to-project-task-body";
 import getProjectTaskQueryValidator from "./validate-project-task-query";
+import getIssuesQueryValidator from "./validate-get-issue-query";
 
 const validators = {
   loginUserBodyValidator,
@@ -47,6 +48,8 @@ const validators = {
 
   projectTaskBodyValidator,
   getProjectTaskQueryValidator,
+
+  getIssuesQueryValidator,
 };
 
 export default validators;

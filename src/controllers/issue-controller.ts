@@ -10,7 +10,7 @@ import {
   ProjectMemberService,
   ProjectService,
 } from "../services";
-import { CustomRequest, Issue } from "../types";
+import { CustomRequest, GetIssuesQuery, Issue } from "../types";
 import EVENTS from "../constants/events";
 
 class IssueController {
@@ -29,15 +29,21 @@ class IssueController {
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(401, "Unauthorized"));
 
-    const issue = await this.issueService.findIssueById(issueId);
+    const issue = await this.issueService.findIssueById(issueId, userId);
     if (!issue) return next(createHttpError(400, "Issue not found"));
 
     res.json({ message: { issue } });
   }
 
   async getIssues(req: CustomRequest, res: Response, next: NextFunction) {
+    /** Validate requrest body */
+    const result = validationResult(req);
+    if (!result.isEmpty())
+      return next(createHttpError(400, result.array()[0].msg as string));
+
     const userId = req.userId as string;
     const projectId = req.query.projectId as string;
+    const query = req.query as unknown as GetIssuesQuery;
 
     if (!projectId) return next(createHttpError(400, "Project ID is required"));
 
@@ -56,8 +62,13 @@ class IssueController {
       return next(createHttpError(403, "Forbidden"));
     }
 
-    const issues = await this.issueService.findIssuesByProjectId(projectId);
-    res.json({ message: { issues } });
+    const data = await this.issueService.findIssuesByProjectId(
+      projectId,
+      userId,
+      isProjectMember._id as unknown as string,
+      query
+    );
+    res.json({ message: data });
   }
 
   async createIssue(

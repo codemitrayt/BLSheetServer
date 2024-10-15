@@ -17,6 +17,7 @@ import {
   ProjectModel,
   UserModel,
 } from "../model";
+import validators from "../validator";
 
 const issueRoute = express.Router();
 const issueService = new IssueService(IssueModel);
@@ -54,6 +55,7 @@ issueRoute.get(
 issueRoute.get(
   "/getIssues",
   authenticateJWT,
+  validators.getIssuesQueryValidator,
   asyncFnHandler((req, res, next) => issueController.getIssues(req, res, next))
 );
 

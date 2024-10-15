@@ -15,9 +15,9 @@ import {
 import {
   AssignUserToProjectTask,
   CustomRequest,
+  GetProjectTaskQuery,
   ProjectTask,
   ProjectTaskComment,
-  ProjectTaskPriority,
 } from "../types";
 import EVENTS from "../constants/events";
 
@@ -120,13 +120,7 @@ class ProjectTaskController {
 
     const userId = req.userId as string;
     const { objectId: projectId } = req.body;
-    const query = req.query as unknown as {
-      search: string;
-      priority: ProjectTaskPriority;
-      isSort: boolean;
-      isAssignedToMe: boolean;
-      isCreatedByMe: boolean;
-    };
+    const query = req.query as unknown as GetProjectTaskQuery;
 
     this.logger.info({ event: EVENTS.GET_PROJECT_TASKS, data: { userId } });
 

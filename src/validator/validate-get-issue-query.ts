@@ -1,6 +1,6 @@
 import { checkSchema } from "express-validator";
 
-const getProjectTaskQueryValidator = checkSchema(
+const getIssuesQueryValidator = checkSchema(
   {
     search: {
       trim: true,
@@ -15,7 +15,7 @@ const getProjectTaskQueryValidator = checkSchema(
       trim: true,
       customSanitizer: {
         options: (value: unknown) => {
-          if (value === "all") return "";
+          if (value === "all") return null;
           return value ? value : "";
         },
       },
@@ -57,11 +57,20 @@ const getProjectTaskQueryValidator = checkSchema(
       },
     },
 
-    onlyCompleted: {
+    status: {
       customSanitizer: {
         options: (value) => {
-          if (!value || value === "false") return false;
-          return true;
+          if (!value) return null;
+          return value;
+        },
+      },
+    },
+
+    labels: {
+      customSanitizer: {
+        options: (value) => {
+          if (!value) return [];
+          return value;
         },
       },
     },
@@ -78,4 +87,4 @@ const getProjectTaskQueryValidator = checkSchema(
   ["query"]
 );
 
-export default getProjectTaskQueryValidator;
+export default getIssuesQueryValidator;

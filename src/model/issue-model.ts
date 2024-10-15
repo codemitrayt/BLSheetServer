@@ -57,6 +57,11 @@ const issueModel = new Schema<CustomModel<Issue>>(
       type: [Schema.Types.ObjectId],
       ref: "PrjectMember",
     },
+
+    comments: {
+      type: [Schema.Types.ObjectId],
+      ref: "Comment",
+    },
   },
 
   { timestamps: true }

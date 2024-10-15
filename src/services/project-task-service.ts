@@ -1,6 +1,6 @@
 import mongoose, { PipelineStage } from "mongoose";
 import { ProjectTaskModel } from "../model";
-import { ProjectTask, ProjectTaskPriority } from "../types";
+import { GetProjectTaskQuery, ProjectTask } from "../types";
 
 class ProjectTaskService {
   constructor(private projectTaskModel: typeof ProjectTaskModel) {}
@@ -9,13 +9,7 @@ class ProjectTaskService {
     projectId: string,
     userId: string,
     memberId: string,
-    query: {
-      search: string;
-      priority: ProjectTaskPriority;
-      isAssignedToMe: boolean;
-      isSort: boolean;
-      isCreatedByMe: boolean;
-    }
+    query: GetProjectTaskQuery
   ) {
     let searchQuery = new RegExp(query.search, "i");
     const today = new Date();
@@ -32,8 +26,12 @@ class ProjectTaskService {
           ...(query?.priority && { priority: query.priority }),
           ...(query.isAssignedToMe && { assignedTo: { $in: [memberId] } }),
           $or: [
-            { status: { $in: ["todo", "in_progress", "under_review"] } },
-            { status: "completed", updatedAt: { $gte: today } },
+            ...(query?.onlyCompleted
+              ? [{ status: "completed" }]
+              : [
+                  { status: { $in: ["todo", "in_progress", "under_review"] } },
+                  { status: "completed", updatedAt: { $gte: today } },
+                ]),
           ],
         },
       },
