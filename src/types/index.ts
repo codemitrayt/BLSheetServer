@@ -256,6 +256,7 @@ export interface GetProjectTaskQuery {
   isAssignedToMe: boolean;
   isCreatedByMe: boolean;
   onlyCompleted: boolean;
+  isGroup: boolean;
 }
 
 export interface GetIssuesQuery {

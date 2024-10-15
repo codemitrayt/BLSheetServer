@@ -15,7 +15,7 @@ class ProjectTaskService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const pipeline: PipelineStage[] = [
+    let pipeline: PipelineStage[] = [
       {
         $match: {
           projectId: new mongoose.Types.ObjectId(projectId),
@@ -103,33 +103,42 @@ class ProjectTaskService {
           },
         },
       },
-      {
-        $group: {
-          _id: "$status",
-          tasks: { $push: "$$ROOT" },
-          count: { $sum: 1 },
+    ];
+
+    if (query?.isGroup) {
+      pipeline = [
+        ...pipeline,
+        {
+          $group: {
+            _id: "$status",
+            tasks: { $push: "$$ROOT" },
+            count: { $sum: 1 },
+          },
         },
-      },
-      {
-        $group: {
-          _id: null,
-          statuses: {
-            $push: {
-              k: "$_id",
-              v: { tasks: "$tasks", count: "$count" },
+        {
+          $group: {
+            _id: null,
+            statuses: {
+              $push: {
+                k: "$_id",
+                v: { tasks: "$tasks", count: "$count" },
+              },
             },
           },
         },
-      },
-      {
-        $replaceRoot: {
-          newRoot: {
-            $arrayToObject: "$statuses",
+        {
+          $replaceRoot: {
+            newRoot: {
+              $arrayToObject: "$statuses",
+            },
           },
         },
-      },
-    ];
+      ];
+    }
+
     const result = await this.projectTaskModel.aggregate(pipeline).exec();
+    if (!query.isGroup) return result;
+
     if (result.length) return result[0];
     return {};
   }
