@@ -26,6 +26,15 @@ class ProjectMemberService {
         },
       },
       {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
         $addFields: {
           isAdmin: { $eq: ["$userId", new mongoose.Types.ObjectId(userId)] },
         },
@@ -34,6 +43,9 @@ class ProjectMemberService {
         $project: {
           _id: 1,
           memberEmailId: 1,
+          user: {
+            fullName: 1,
+          },
           status: 1,
           isAdmin: 1,
         },
