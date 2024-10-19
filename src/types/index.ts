@@ -247,6 +247,7 @@ export interface Issue {
   labels: string[];
   assignees: ObjectId[];
   comments: ObjectId[];
+  closedBy: ObjectId;
 }
 
 export interface GetProjectTaskQuery {
@@ -269,4 +270,13 @@ export interface GetIssuesQuery {
   status: string;
   labels: string[];
   perPage: number;
+}
+
+export interface ChangeStatusIssueQuery {
+  projectId: string;
+  issueId: string;
+}
+
+export interface ChangeStatusIssueBody {
+  status: IssueStatus;
 }
