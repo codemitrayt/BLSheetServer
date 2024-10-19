@@ -75,6 +75,22 @@ issueRoute.post(
   )
 );
 
+/**
+ * url: http://localhost:5500/api/v1/issues/closeIssue?projectId=123&issueId=123
+ * method: POST
+ * body: {status: "open" | "closed"}
+ * params : { projectId: 123, issueId: 123 }
+ * response : {message: : {msg : "Issue closed successfully"}}
+ */
+
+issueRoute.post(
+  "/changeStatusIssue",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    issueController.changeStatusIssue(req, res, next)
+  )
+);
+
 issueRoute.put(
   "/updateIssue",
   authenticateJWT,

@@ -1,6 +1,6 @@
 import mongoose, { PipelineStage } from "mongoose";
 import { IssueModel } from "../model";
-import { GetIssuesQuery } from "../types";
+import { GetIssuesQuery, IssueStatus } from "../types";
 
 class IssueService {
   constructor(private issueModel: typeof IssueModel) {}
@@ -21,6 +21,20 @@ class IssueService {
         },
       },
       { $unwind: "$author" },
+      {
+        $lookup: {
+          from: "users",
+          localField: "closedBy",
+          foreignField: "_id",
+          as: "closedBy",
+        },
+      },
+      {
+        $unwind: {
+          path: "$closedBy",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
       {
         $addFields: {
           isAuthor: {
@@ -44,6 +58,7 @@ class IssueService {
             fullName: 1,
             email: 1,
           },
+          closedBy: 1,
           isAuthor: 1,
           commentCount: 1,
           description: 1,
@@ -54,6 +69,32 @@ class IssueService {
     const result = await this.issueModel.aggregate(pipeline).exec();
     if (result.length) return result[0];
     return null;
+  }
+
+  async issueCounts(projectId: string) {
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          projectId: new mongoose.Types.ObjectId(projectId),
+        },
+      },
+      {
+        $group: {
+          _id: "$status",
+          count: {
+            $sum: 1,
+          },
+        },
+      },
+    ];
+    const result = await this.issueModel.aggregate(pipeline).exec();
+    const statusCounts = result.reduce((acc, curr) => {
+      acc[curr._id] = curr.count;
+      return acc;
+    }, {});
+
+    if (Object.keys(statusCounts).length) return statusCounts;
+    return { open: 0, closed: 0 };
   }
 
   async findIssuesByProjectId(
@@ -86,6 +127,20 @@ class IssueService {
         },
       },
       { $unwind: "$author" },
+      {
+        $lookup: {
+          from: "users",
+          localField: "closedBy",
+          foreignField: "_id",
+          as: "closedBy",
+        },
+      },
+      {
+        $unwind: {
+          path: "$closedBy",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
       {
         $lookup: {
           from: "projectmembers",
@@ -122,11 +177,8 @@ class IssueService {
           assignedMembers: 1,
           commentCount: 1,
           createdAt: 1,
-          author: {
-            _id: "$author._id",
-            fullName: "$author.fullName",
-            email: "$author.email",
-          },
+          closedBy: 1,
+          author: 1,
         },
       },
       { $sort: { createdAt: query?.isSort ? 1 : -1 } },
@@ -175,6 +227,18 @@ class IssueService {
 
   async deleteIssue(issueId: string) {
     return await this.issueModel.deleteOne({ _id: issueId });
+  }
+
+  async changeStatusIssue(
+    issueId: string,
+    status: IssueStatus,
+    userId: string
+  ) {
+    return await this.issueModel.findByIdAndUpdate(issueId, {
+      status,
+      closedBy: new mongoose.Types.ObjectId(userId),
+      closedIssueDate: new Date(),
+    });
   }
 
   async getAllIssues() {

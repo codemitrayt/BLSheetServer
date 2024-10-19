@@ -10,7 +10,13 @@ import {
   ProjectMemberService,
   ProjectService,
 } from "../services";
-import { CustomRequest, GetIssuesQuery, Issue } from "../types";
+import {
+  ChangeStatusIssueBody,
+  ChangeStatusIssueQuery,
+  CustomRequest,
+  GetIssuesQuery,
+  Issue,
+} from "../types";
 import EVENTS from "../constants/events";
 
 class IssueController {
@@ -62,13 +68,15 @@ class IssueController {
       return next(createHttpError(403, "Forbidden"));
     }
 
+    const issueCounts = await this.issueService.issueCounts(projectId);
+
     const data = await this.issueService.findIssuesByProjectId(
       projectId,
       userId,
       isProjectMember._id as unknown as string,
       query
     );
-    res.json({ message: data });
+    res.json({ message: { ...data, issueCounts } });
   }
 
   async createIssue(
@@ -130,6 +138,33 @@ class IssueController {
       },
     });
   }
+
+  async changeStatusIssue(
+    req: CustomRequest<ChangeStatusIssueBody>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req.userId as string;
+    const { projectId, issueId } =
+      req.query as unknown as ChangeStatusIssueQuery;
+    const { status } = req.body;
+
+    const project = await this.projectService.getProjectById(projectId, userId);
+    if (!project) return next(createHttpError(400, "Project not found"));
+
+    if (!project.isAdmin)
+      return next(
+        createHttpError(401, "You have no permission to close this issue")
+      );
+
+    const issue = await this.issueService.findIssueById(issueId, userId);
+    if (!issue) return next(createHttpError(400, "Issue not found"));
+
+    await this.issueService.changeStatusIssue(issueId, status, userId);
+
+    return res.json({ message: { msg: "Issue closed successfully", issueId } });
+  }
+
   async updateIssue(req: CustomRequest, res: Response, next: NextFunction) {}
   async deleteIssue(req: CustomRequest, res: Response, next: NextFunction) {}
 }
