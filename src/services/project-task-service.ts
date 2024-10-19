@@ -15,7 +15,7 @@ class ProjectTaskService {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const pipeline: PipelineStage[] = [
+    let pipeline: PipelineStage[] = [
       {
         $match: {
           projectId: new mongoose.Types.ObjectId(projectId),
@@ -83,6 +83,7 @@ class ProjectTaskService {
           assignedMembers: 1,
           commentCount: 1,
           createdAt: 1,
+          subtasks: 1,
           user: {
             _id: "$user._id",
             fullName: "$user.fullName",
@@ -102,33 +103,42 @@ class ProjectTaskService {
           },
         },
       },
-      {
-        $group: {
-          _id: "$status",
-          tasks: { $push: "$$ROOT" },
-          count: { $sum: 1 },
+    ];
+
+    if (query?.isGroup) {
+      pipeline = [
+        ...pipeline,
+        {
+          $group: {
+            _id: "$status",
+            tasks: { $push: "$$ROOT" },
+            count: { $sum: 1 },
+          },
         },
-      },
-      {
-        $group: {
-          _id: null,
-          statuses: {
-            $push: {
-              k: "$_id",
-              v: { tasks: "$tasks", count: "$count" },
+        {
+          $group: {
+            _id: null,
+            statuses: {
+              $push: {
+                k: "$_id",
+                v: { tasks: "$tasks", count: "$count" },
+              },
             },
           },
         },
-      },
-      {
-        $replaceRoot: {
-          newRoot: {
-            $arrayToObject: "$statuses",
+        {
+          $replaceRoot: {
+            newRoot: {
+              $arrayToObject: "$statuses",
+            },
           },
         },
-      },
-    ];
+      ];
+    }
+
     const result = await this.projectTaskModel.aggregate(pipeline).exec();
+    if (!query.isGroup) return result;
+
     if (result.length) return result[0];
     return {};
   }
@@ -268,25 +278,53 @@ class ProjectTaskService {
     );
   }
 
-  async getProjectTasksByUserId(projectId: string, memberId: string) {
-    return await this.projectTaskModel
-      .aggregate([
-        {
-          $match: {
-            projectId: new mongoose.Types.ObjectId(projectId),
-            assignedTo: { $in: [memberId] },
+  async getAssignedProjectTasks(projectId: string, memberId: string) {
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          projectId: new mongoose.Types.ObjectId(projectId),
+          assignedTo: { $in: [memberId] },
+        },
+      },
+      {
+        $project: {
+          status: 1,
+          title: 1,
+          tags: 1,
+          priority: 1,
+          endDate: 1,
+        },
+      },
+      {
+        $group: {
+          _id: "$status",
+          tasks: { $push: "$$ROOT" },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          statuses: {
+            $push: {
+              k: "$_id",
+              v: { tasks: "$tasks", count: "$count" },
+            },
           },
         },
-        {
-          $project: {
-            status: 1,
-            title: 1,
-            tags: 1,
-            priority: 1,
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $arrayToObject: "$statuses",
           },
         },
-      ])
-      .exec();
+      },
+    ];
+    const result = await this.projectTaskModel.aggregate(pipeline).exec();
+
+    if (result.length) return result[0];
+    return {};
   }
 }
 

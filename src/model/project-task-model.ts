@@ -63,6 +63,10 @@ const projectTaskSchema = new mongoose.Schema(
       ref: "Comment",
       required: false,
     },
+    subtasks: {
+      type: Array,
+      required: false,
+    },
   },
   { timestamps: true }
 );

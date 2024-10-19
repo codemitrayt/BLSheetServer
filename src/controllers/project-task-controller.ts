@@ -572,7 +572,7 @@ class ProjectTaskController {
     if (!member) return next(createHttpError(400, "Member not found"));
 
     /** Get Project Task */
-    const projectTasks = await this.projectTaskService.getProjectTasksByUserId(
+    const projectTasks = await this.projectTaskService.getAssignedProjectTasks(
       projectId as unknown as string,
       member._id as string
     );
