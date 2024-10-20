@@ -178,7 +178,10 @@ class IssueService {
           commentCount: 1,
           createdAt: 1,
           closedBy: 1,
-          author: 1,
+          author: {
+            fullName: 1,
+            email: 1,
+          },
         },
       },
       { $sort: { createdAt: query?.isSort ? 1 : -1 } },
@@ -215,6 +218,10 @@ class IssueService {
     return await this.issueModel.findById(issueId);
   }
 
+  async getIssueByIdAndUserId(issueId: string, userId: string) {
+    return await this.issueModel.findOne({ _id: issueId, userId });
+  }
+
   async createIssue(issue: any) {
     return await this.issueModel.create(issue);
   }
@@ -243,6 +250,159 @@ class IssueService {
 
   async getAllIssues() {
     return await this.issueModel.find();
+  }
+
+  async assignMember(issueId: string, memberId: string) {
+    return await this.issueModel.findByIdAndUpdate(
+      issueId,
+      { $push: { assignees: memberId } },
+      { new: true }
+    );
+  }
+
+  async removeMember(issueId: string, memberId: string) {
+    return await this.issueModel.findByIdAndUpdate(
+      issueId,
+      { $pull: { assignees: new mongoose.Types.ObjectId(memberId) } },
+      { new: true }
+    );
+  }
+
+  async addComment(issueId: string, commentId: string) {
+    return await this.issueModel.findByIdAndUpdate(
+      issueId,
+      { $push: { comments: commentId } },
+      { new: true }
+    );
+  }
+
+  async getComments(issueId: string, userId: string) {
+    const pipeline: PipelineStage[] = [
+      {
+        $match: { _id: new mongoose.Types.ObjectId(issueId) },
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "comments",
+          foreignField: "_id",
+          as: "commentsDetails",
+        },
+      },
+      {
+        $unwind: "$commentsDetails",
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "commentsDetails.userId",
+          foreignField: "_id",
+          as: "commentsDetails.author",
+        },
+      },
+      {
+        $unwind: "$commentsDetails.author",
+      },
+      {
+        $addFields: {
+          "commentsDetails.isCreator": {
+            $cond: {
+              if: {
+                $eq: [{ $toString: "$commentsDetails.author._id" }, userId],
+              },
+              then: true,
+              else: false,
+            },
+          },
+          "commentsDetails.replyCount": { $size: "$commentsDetails.replies" },
+        },
+      },
+      {
+        $project: {
+          "commentsDetails.userId": 0,
+          "commentsDetails.__v": 0,
+          "commentsDetails.author.password": 0,
+          "commentsDetails.author.projects": 0,
+          "commentsDetails.author.__v": 0,
+          "commentsDetails.author.createdAt": 0,
+          "commentsDetails.author.updatedAt": 0,
+          "commentsDetails.author.role": 0,
+          "commentsDetails.replies": 0,
+        },
+      },
+      {
+        $group: {
+          _id: "$_id",
+          comments: { $push: "$commentsDetails" },
+        },
+      },
+      {
+        $project: {
+          createdAt: 0,
+          updatedAt: 0,
+          __v: 0,
+        },
+      },
+    ];
+
+    const result = await this.issueModel.aggregate(pipeline).exec();
+    if (result.length > 0) return result[0];
+    return { comments: [] };
+  }
+
+  async removeComment(issueId: string, commentId: string) {
+    return await this.issueModel.findByIdAndUpdate(
+      issueId,
+      { $pull: { comments: new mongoose.Types.ObjectId(commentId) } },
+      { new: true }
+    );
+  }
+
+  async getAssignedIssues(projectId: string, memberId: string) {
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          projectId: new mongoose.Types.ObjectId(projectId),
+          assignees: { $in: [memberId] },
+        },
+      },
+      {
+        $project: {
+          status: 1,
+          title: 1,
+          labels: 1,
+        },
+      },
+      {
+        $group: {
+          _id: "$status",
+          issues: { $push: "$$ROOT" },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          statuses: {
+            $push: {
+              k: "$_id",
+              v: { issues: "$issues", count: "$count" },
+            },
+          },
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: {
+            $arrayToObject: "$statuses",
+          },
+        },
+      },
+    ];
+    const result = await this.issueModel.aggregate(pipeline).exec();
+
+    if (result.length) return result[0];
+    return {};
   }
 }
 
