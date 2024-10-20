@@ -7,6 +7,8 @@ const commentSchema = new Schema<CustomModel<Comment>>(
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     likes: { type: Number, default: 0 },
     replies: [{ type: Schema.Types.ObjectId, ref: "comment" }],
+    objectId: { type: Schema.Types.ObjectId, require: true },
+    commentType: { type: String, required: true },
   },
   { timestamps: true }
 );

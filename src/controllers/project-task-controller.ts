@@ -393,6 +393,8 @@ class ProjectTaskController {
     /** Create Comment */
     const comment = await this.commentService.createComment({
       content,
+      objectId: projectTaskId as unknown as ObjectId,
+      commentType: "PROJECT_TASK",
       userId: userId as unknown as ObjectId,
     });
 
@@ -607,6 +609,8 @@ class ProjectTaskController {
     /** Create comment */
     const replyCooment = await this.commentService.createComment({
       content,
+      objectId: comment.objectId,
+      commentType: "PROJECT_TASK",
       userId: userId as unknown as ObjectId,
     });
 
