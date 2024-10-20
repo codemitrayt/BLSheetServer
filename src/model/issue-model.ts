@@ -62,6 +62,12 @@ const issueModel = new Schema<CustomModel<Issue>>(
       type: [Schema.Types.ObjectId],
       ref: "Comment",
     },
+
+    closedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
 
   { timestamps: true }

@@ -215,6 +215,8 @@ export interface Comment {
   userId: ObjectId;
   likes?: number;
   replies?: ObjectId[];
+  objectId: ObjectId;
+  commentType: string;
 }
 
 export interface ProjectTaskComment {
@@ -247,6 +249,7 @@ export interface Issue {
   labels: string[];
   assignees: ObjectId[];
   comments: ObjectId[];
+  closedBy: ObjectId;
 }
 
 export interface GetProjectTaskQuery {
@@ -269,4 +272,25 @@ export interface GetIssuesQuery {
   status: string;
   labels: string[];
   perPage: number;
+}
+
+export interface ChangeStatusIssueQuery {
+  projectId: string;
+  issueId: string;
+}
+
+export interface ChangeStatusIssueBody {
+  status: IssueStatus;
+}
+
+export interface AssignUserToIssue {
+  memberEmailId: string;
+  projectId: string;
+  issueId: string;
+}
+
+export interface IssueComment {
+  issueId: string;
+  content: string;
+  projectId: string;
 }

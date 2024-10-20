@@ -7,11 +7,13 @@ import logger from "../config/logger";
 import { IssueController } from "../controllers";
 import {
   AuthService,
+  CommentService,
   IssueService,
   ProjectMemberService,
   ProjectService,
 } from "../services";
 import {
+  CommentModel,
   IssueModel,
   ProjectMemberModel,
   ProjectModel,
@@ -24,11 +26,13 @@ const issueService = new IssueService(IssueModel);
 const projectMemberService = new ProjectMemberService(ProjectMemberModel);
 const authService = new AuthService(UserModel);
 const projectService = new ProjectService(ProjectModel);
+const commentService = new CommentService(CommentModel);
 const issueController = new IssueController(
   authService,
   projectService,
   projectMemberService,
   issueService,
+  commentService,
   logger
 );
 
@@ -75,6 +79,22 @@ issueRoute.post(
   )
 );
 
+/**
+ * url: http://localhost:5500/api/v1/issues/closeIssue?projectId=123&issueId=123
+ * method: POST
+ * body: {status: "open" | "closed"}
+ * params : { projectId: 123, issueId: 123 }
+ * response : {message: : {msg : "Issue closed successfully"}}
+ */
+
+issueRoute.post(
+  "/changeStatusIssue",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    issueController.changeStatusIssue(req, res, next)
+  )
+);
+
 issueRoute.put(
   "/updateIssue",
   authenticateJWT,
@@ -88,6 +108,70 @@ issueRoute.delete(
   authenticateJWT,
   asyncFnHandler((req, res, next) =>
     issueController.deleteIssue(req, res, next)
+  )
+);
+
+issueRoute.post(
+  "/assignUserToIssue",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    issueController.assignUserToIssue(req, res, next)
+  )
+);
+
+issueRoute.delete(
+  "/removeAssignedUserFormIssue",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    issueController.removeAssignedUserFormIssue(req, res, next)
+  )
+);
+
+issueRoute.post(
+  "/createIssueComment",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    issueController.createIssueComment(req, res, next)
+  )
+);
+
+issueRoute.post(
+  "/getIssueComments",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    issueController.getIssueComments(req, res, next)
+  )
+);
+
+issueRoute.delete(
+  "/deleteIssueComment",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    issueController.deleteIssueComment(req, res, next)
+  )
+);
+
+issueRoute.put(
+  "/updateIssueComment",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    issueController.updateIssueComment(req, res, next)
+  )
+);
+
+issueRoute.post(
+  "/replyToIssueComment",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    issueController.replyToIssueComment(req, res, next)
+  )
+);
+
+issueRoute.post(
+  "/getIssueCommentReplies",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    issueController.getIssueCommentReplies(req, res, next)
   )
 );
 
