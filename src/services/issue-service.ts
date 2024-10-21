@@ -36,7 +36,25 @@ class IssueService {
         },
       },
       {
+        $lookup: {
+          from: "projectmembers",
+          localField: "assignees",
+          foreignField: "_id",
+          as: "assignedMembers",
+        },
+      },
+      {
         $addFields: {
+          assignedMembers: {
+            $map: {
+              input: "$assignedMembers",
+              as: "member",
+              in: {
+                _id: "$$member._id",
+                memberEmailId: "$$member.memberEmailId",
+              },
+            },
+          },
           isAuthor: {
             $eq: ["$author._id", new mongoose.Types.ObjectId(userId)],
           },
@@ -53,6 +71,7 @@ class IssueService {
           priority: 1,
           projectId: 1,
           closedIssueDate: 1,
+          assignedMembers: 1,
           author: {
             _id: 1,
             fullName: 1,
