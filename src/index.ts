@@ -23,7 +23,7 @@ const server = createServer(app);
 
 export const io = new Server(server, {
   cors: {
-    origin: [Config.FRONTEND_URL!],
+    origin: [Config.FRONTEND_URL!, Config.WWW_FRONTEND_URL!],
     // origin: "*",
     methods: ["GET", "POST"],
     credentials: true,
