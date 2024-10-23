@@ -14,6 +14,7 @@ const {
   BACKEND_URL,
   FRONTEND_URL,
   RESEND_API_KEY,
+  WWW_FRONTEND_URL,
 } = process.env;
 
 const Config = {
@@ -29,6 +30,7 @@ const Config = {
   BACKEND_URL,
   FRONTEND_URL,
   RESEND_API_KEY,
+  WWW_FRONTEND_URL,
 };
 
 export default Config;
