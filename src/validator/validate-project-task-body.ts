@@ -4,7 +4,7 @@ import { ProjectTaskPriority, ProjectTaskStatus } from "../types";
 const projectTaskBodyValidator = [
   body("title").exists().withMessage("Title should be required."),
 
-  body("description").exists().withMessage("Description should be required."),
+  // body("description").exists().withMessage("Description should be required."),
 
   body("status")
     .exists()
@@ -16,11 +16,11 @@ const projectTaskBodyValidator = [
     .isIn(Object.values(ProjectTaskPriority))
     .withMessage("Project priority should be valid project priority"),
 
-  body("tags")
-    .exists()
-    .withMessage("Tags should be required")
-    .isArray()
-    .withMessage("Tags should be array"),
+  // body("tags")
+  //   .exists()
+  //   .withMessage("Tags should be required")
+  //   .isArray()
+  //   .withMessage("Tags should be array"),
 
   body("startDate")
     .exists()

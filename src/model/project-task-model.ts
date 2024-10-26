@@ -9,7 +9,7 @@ const projectTaskSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: true,
+      required: false,
     },
     status: {
       type: String,
@@ -41,7 +41,7 @@ const projectTaskSchema = new mongoose.Schema(
     },
     tags: {
       type: [String],
-      required: true,
+      required: false,
     },
     assignedTo: {
       type: [mongoose.Schema.Types.ObjectId],
