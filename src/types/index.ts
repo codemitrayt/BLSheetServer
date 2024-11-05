@@ -195,6 +195,7 @@ export interface ProjectTask {
   completedDate?: Date;
   attachments?: ObjectId[];
   comments: ObjectId[];
+  subtasks: string[];
 }
 
 export interface GetProjectMemberQuery {
