@@ -5,6 +5,7 @@ import { ObjectId } from "mongoose";
 
 import {
   AuthService,
+  LableService,
   NotificationService,
   ProjectMemberService,
   ProjectService,
@@ -24,6 +25,7 @@ import {
   ProjectMemberStatus,
   UpdateTeamMember,
 } from "../types";
+import Labels from "../constants/labels";
 
 class ProjectController {
   constructor(
@@ -31,7 +33,8 @@ class ProjectController {
     private authService: AuthService,
     private tokenService: TokenService,
     private notificationService: NotificationService,
-    private projectMemberService: ProjectMemberService
+    private projectMemberService: ProjectMemberService,
+    private labelService: LableService
   ) {}
 
   async getProject(req: CustomRequest, res: Response, next: NextFunction) {
@@ -107,6 +110,18 @@ class ProjectController {
       userId: userId as unknown as ObjectId,
       projectId: newProject._id as unknown as ObjectId,
       memberEmailId: user.email,
+    });
+
+    Labels.forEach(async (label) => {
+      const dbLabel = await this.labelService.createLabel({
+        ...label,
+        projectId: newProject._id as unknown as ObjectId,
+      });
+
+      await this.projectService.addLabel(
+        newProject._id as unknown as string,
+        dbLabel._id as unknown as string
+      );
     });
 
     return res.json({
@@ -360,6 +375,25 @@ class ProjectController {
       projectMember.projectId as unknown as string
     );
     return res.json({ message: "Project member removed successfully" });
+  }
+
+  async getProjectLabels(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req.userId as string;
+    const projectId = req.query.objectId as string;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(401, "Unauthorized"));
+
+    const project = await this.projectService.findProjectById(projectId);
+    if (!project) return next(createHttpError(400, "Project not found"));
+
+    const labels = await this.projectService.getProjectLabels(projectId);
+
+    return res.json({ message: labels });
   }
 }
 
