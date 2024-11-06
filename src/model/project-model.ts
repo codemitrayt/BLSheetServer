@@ -30,6 +30,12 @@ const projectSchema = new Schema<CustomModel<Project>>(
       required: false,
       default: `${Config.BACKEND_URL}/project-img.jpg`,
     },
+
+    labels: {
+      type: [Schema.Types.ObjectId],
+      ref: "Label",
+      required: false,
+    },
   },
 
   { timestamps: true }
