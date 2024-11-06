@@ -1,4 +1,4 @@
-import mongoose, { mongo, ObjectId } from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import { ProjectModel } from "../model";
 import { Project } from "../types";
 
@@ -119,6 +119,18 @@ class ProjectService {
       { $set: project },
       { new: true }
     );
+  }
+
+  async addLabel(projectId: string, lableId: string) {
+    return await this.projectModel.findByIdAndUpdate(
+      projectId,
+      { $push: { labels: lableId } },
+      { new: true }
+    );
+  }
+
+  async getProjectLabels(projectId: string) {
+    return await this.projectModel.findById(projectId).select("labels");
   }
 }
 
