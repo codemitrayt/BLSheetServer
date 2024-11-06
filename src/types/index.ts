@@ -134,6 +134,7 @@ export interface Project {
   userId: ObjectId;
   tags: string[];
   img: string;
+  labels?: ObjectId[];
 }
 
 /** Project Members */
@@ -294,4 +295,12 @@ export interface IssueComment {
   issueId: string;
   content: string;
   projectId: string;
+}
+
+export interface Label {
+  name: string;
+  description: string;
+  color: string;
+  isDelete: boolean;
+  projectId: ObjectId;
 }
