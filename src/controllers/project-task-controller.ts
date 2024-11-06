@@ -95,6 +95,7 @@ class ProjectTaskController {
       userId: newProjectTask.userId,
       projectId: newProjectTask.projectId,
       completedDate: null,
+      subtasks: newProjectTask.subtasks,
       assignedMembers: [],
       commentCount: 0,
       user: {

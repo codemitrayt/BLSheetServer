@@ -6,12 +6,18 @@ import validators from "../validator";
 
 import {
   AuthService,
+  LableService,
   NotificationService,
   ProjectMemberService,
   ProjectService,
   TokenService,
 } from "../services";
-import { ProjectMemberModel, ProjectModel, UserModel } from "../model";
+import {
+  LabelModel,
+  ProjectMemberModel,
+  ProjectModel,
+  UserModel,
+} from "../model";
 import { ProjectController } from "../controllers";
 import { CustomRequest, InviteTeamMemberType } from "../types";
 
@@ -21,12 +27,14 @@ const projectService = new ProjectService(ProjectModel);
 const notificationService = new NotificationService();
 const tokenService = new TokenService();
 const projectMemberService = new ProjectMemberService(ProjectMemberModel);
+const labelService = new LableService(LabelModel);
 const projectController = new ProjectController(
   projectService,
   authService,
   tokenService,
   notificationService,
-  projectMemberService
+  projectMemberService,
+  labelService
 );
 
 projectRouter.get(
@@ -112,6 +120,15 @@ projectRouter.delete(
   validators.objectIdQueryValidator,
   asyncFnHandler((req, res, next) =>
     projectController.removeProjectMember(req, res, next)
+  )
+);
+
+projectRouter.get(
+  "/getProjectLabels",
+  authenticateJWT,
+  validators.objectIdQueryValidator,
+  asyncFnHandler((req, res, next) =>
+    projectController.getProjectLabels(req, res, next)
   )
 );
 
