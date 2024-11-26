@@ -6,16 +6,20 @@ import validators from "../validator";
 
 import {
   AuthService,
+  IssueService,
   LableService,
   NotificationService,
   ProjectMemberService,
   ProjectService,
+  ProjectTaskService,
   TokenService,
 } from "../services";
 import {
+  IssueModel,
   LabelModel,
   ProjectMemberModel,
   ProjectModel,
+  ProjectTaskModel,
   UserModel,
 } from "../model";
 import { ProjectController } from "../controllers";
@@ -28,12 +32,16 @@ const notificationService = new NotificationService();
 const tokenService = new TokenService();
 const projectMemberService = new ProjectMemberService(ProjectMemberModel);
 const labelService = new LableService(LabelModel);
+const projectTaskService = new ProjectTaskService(ProjectTaskModel);
+const issueService = new IssueService(IssueModel);
 const projectController = new ProjectController(
   projectService,
   authService,
   tokenService,
   notificationService,
   projectMemberService,
+  projectTaskService,
+  issueService,
   labelService
 );
 

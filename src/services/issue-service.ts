@@ -423,6 +423,10 @@ class IssueService {
     if (result.length) return result[0];
     return {};
   }
+
+  async deleteIssues(projectId: string) {
+    await this.issueModel.deleteMany({ projectId });
+  }
 }
 
 export default IssueService;

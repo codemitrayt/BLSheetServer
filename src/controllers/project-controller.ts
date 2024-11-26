@@ -5,10 +5,12 @@ import { ObjectId } from "mongoose";
 
 import {
   AuthService,
+  IssueService,
   LableService,
   NotificationService,
   ProjectMemberService,
   ProjectService,
+  ProjectTaskService,
   TokenService,
 } from "../services";
 import Config from "../config";
@@ -35,6 +37,8 @@ class ProjectController {
     private tokenService: TokenService,
     private notificationService: NotificationService,
     private projectMemberService: ProjectMemberService,
+    private projectTaskService: ProjectTaskService,
+    private issueService: IssueService,
     private labelService: LableService
   ) {}
 
@@ -105,7 +109,7 @@ class ProjectController {
       userId: userId as unknown as ObjectId,
     });
 
-    await this.authService.addProject(userId, newProject._id as string);
+    // await this.authService.addProject(userId, newProject._id as string);
     await this.projectMemberService.addProjectMember({
       status: ProjectMemberStatus.ACCEPTED,
       userId: userId as unknown as ObjectId,
@@ -178,6 +182,23 @@ class ProjectController {
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(401, "Unauthorized"));
 
+    const member =
+      await this.projectMemberService.findMemberByUserIdAndProjectId(
+        userId,
+        projectId
+      );
+    if (member?.role !== ProjectMemberRole.OWNER) {
+      return next(
+        createHttpError(
+          403,
+          "You do not have permission to delete this project"
+        )
+      );
+    }
+    //TODO: delete related docs
+    await this.projectMemberService.deleteMembers(projectId);
+    await this.projectTaskService.deleteTasks(projectId);
+    await this.issueService.deleteIssues(projectId);
     await this.projectService.deleteProject(projectId, userId);
     return res.json({ message: { deletedProject: projectId } });
   }
