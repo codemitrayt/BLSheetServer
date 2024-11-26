@@ -145,11 +145,18 @@ export enum ProjectMemberStatus {
   REJECTED = "rejected",
 }
 
+export enum ProjectMemberRole {
+  ADMIN = "admin",
+  MEMBER = "member",
+  OWNER = "owner",
+}
+
 export interface ProjectMember {
   memberEmailId: string;
   userId?: ObjectId;
   projectId: ObjectId;
   status: ProjectMemberStatus;
+  role?: ProjectMemberRole;
 }
 
 export interface InviteTeamMemberType {

@@ -25,6 +25,12 @@ const projectMemberSchema = new Schema<CustomModel<ProjectMember>>(
       enum: ["pending", "accepted", "rejected"],
       required: true,
     },
+
+    role: {
+      type: String,
+      enum: ["admin", "member", "owner"],
+      default: "member",
+    },
   },
 
   { timestamps: true }

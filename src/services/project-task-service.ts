@@ -326,6 +326,10 @@ class ProjectTaskService {
     if (result.length) return result[0];
     return {};
   }
+
+  async deleteTasks(projectId: string) {
+    await this.projectTaskModel.deleteMany({ projectId });
+  }
 }
 
 export default ProjectTaskService;

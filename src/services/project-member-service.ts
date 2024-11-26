@@ -48,6 +48,7 @@ class ProjectMemberService {
           },
           status: 1,
           isAdmin: 1,
+          role: 1,
         },
       },
       {
@@ -117,6 +118,123 @@ class ProjectMemberService {
       memberEmailId: email,
       projectId,
     });
+  }
+
+  async getProjectsWithRole(userId: string) {
+    const aggregationPipeline = [
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+      {
+        $lookup: {
+          from: "projects",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "project",
+        },
+      },
+      { $unwind: "$project" },
+      {
+        $lookup: {
+          from: "users",
+          localField: "project.userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $addFields: {
+          memberId: "$_id",
+          _id: "$project._id",
+          name: "$project.name",
+          description: "$project.description",
+          tags: "$project.tags",
+          img: "$project.img",
+          userId: "$user.userId",
+        },
+      },
+      {
+        $project: {
+          role: 1,
+          memberId: 1,
+          name: 1,
+          description: 1,
+          tags: 1,
+          img: 1,
+          userId: 1,
+          user: {
+            _id: 1,
+            fullName: 1,
+            email: 1,
+          },
+        },
+      },
+    ];
+
+    const result = await this.projectMemberModel
+      .aggregate(aggregationPipeline)
+      .exec();
+    return result;
+  }
+
+  async getProjectByMemberId(memberId: string) {
+    const pipeline: PipelineStage[] = [
+      { $match: { _id: new mongoose.Types.ObjectId(memberId) } },
+      {
+        $lookup: {
+          from: "projects",
+          localField: "projectId",
+          foreignField: "_id",
+          as: "project",
+        },
+      },
+      { $unwind: "$project" },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $addFields: {
+          memberId: "$_id",
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: 0,
+          createdAt: 0,
+          updatedAt: 0,
+          __v: 0,
+          "project._id": 0,
+          "project.labels": 0,
+          "project.createdAt": 0,
+          "project.updatedAt": 0,
+          "project.__v": 0,
+          "user._id": 0,
+          "user.role": 0,
+          "user.password": 0,
+          "user.createdAt": 0,
+          "user.updatedAt": 0,
+          "user.__v": 0,
+          "user.projects": 0,
+          memberEmailId: 0,
+        },
+      },
+    ];
+
+    const result = await this.projectMemberModel.aggregate(pipeline).exec();
+    if (result.length > 0) {
+      return result[0];
+    }
+    return null;
+  }
+
+  async deleteMembers(projectId: string) {
+    await this.projectMemberModel.deleteMany({ projectId });
   }
 }
 

@@ -5,10 +5,12 @@ import { ObjectId } from "mongoose";
 
 import {
   AuthService,
+  IssueService,
   LableService,
   NotificationService,
   ProjectMemberService,
   ProjectService,
+  ProjectTaskService,
   TokenService,
 } from "../services";
 import Config from "../config";
@@ -22,6 +24,7 @@ import {
   InviteTeamMemberType,
   ObjectIdBody,
   Project,
+  ProjectMemberRole,
   ProjectMemberStatus,
   UpdateTeamMember,
 } from "../types";
@@ -34,6 +37,8 @@ class ProjectController {
     private tokenService: TokenService,
     private notificationService: NotificationService,
     private projectMemberService: ProjectMemberService,
+    private projectTaskService: ProjectTaskService,
+    private issueService: IssueService,
     private labelService: LableService
   ) {}
 
@@ -104,12 +109,13 @@ class ProjectController {
       userId: userId as unknown as ObjectId,
     });
 
-    await this.authService.addProject(userId, newProject._id as string);
+    // await this.authService.addProject(userId, newProject._id as string);
     await this.projectMemberService.addProjectMember({
       status: ProjectMemberStatus.ACCEPTED,
       userId: userId as unknown as ObjectId,
       projectId: newProject._id as unknown as ObjectId,
       memberEmailId: user.email,
+      role: ProjectMemberRole.OWNER,
     });
 
     Labels.forEach(async (label) => {
@@ -176,6 +182,23 @@ class ProjectController {
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(401, "Unauthorized"));
 
+    const member =
+      await this.projectMemberService.findMemberByUserIdAndProjectId(
+        userId,
+        projectId
+      );
+    if (member?.role !== ProjectMemberRole.OWNER) {
+      return next(
+        createHttpError(
+          403,
+          "You do not have permission to delete this project"
+        )
+      );
+    }
+    //TODO: delete related docs
+    await this.projectMemberService.deleteMembers(projectId);
+    await this.projectTaskService.deleteTasks(projectId);
+    await this.issueService.deleteIssues(projectId);
     await this.projectService.deleteProject(projectId, userId);
     return res.json({ message: { deletedProject: projectId } });
   }
@@ -394,6 +417,60 @@ class ProjectController {
     const labels = await this.projectService.getProjectLabels(projectId);
 
     return res.json({ message: labels });
+  }
+
+  async getProjectsWithRole(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req.userId as string;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    const projects = await this.projectMemberService.getProjectsWithRole(
+      user._id as string
+    );
+
+    return res.json({ message: { projects } });
+  }
+
+  async getProjectWithMember(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req.userId as string;
+    const projectId = req.query.projectId as string;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    const member =
+      await this.projectMemberService.findMemberByUserIdAndProjectId(
+        userId,
+        projectId
+      );
+    if (!member) {
+      return next(createHttpError(400, "Project member not found"));
+    }
+
+    const projectDetails = await this.projectMemberService.getProjectByMemberId(
+      member._id as unknown as string
+    );
+
+    return res.json({
+      message: {
+        projectDetails: {
+          _id: projectDetails.projectId,
+          memberId: projectDetails.memberId,
+          role: projectDetails.role,
+          ...projectDetails.project,
+          user: projectDetails.user,
+        },
+      },
+    });
   }
 }
 

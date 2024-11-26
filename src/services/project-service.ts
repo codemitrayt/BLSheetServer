@@ -130,7 +130,7 @@ class ProjectService {
   }
 
   async getProjectLabels(projectId: string) {
-    return await this.projectModel.findById(projectId).select("labels");
+    return await this.projectModel.findById(projectId).populate("labels");
   }
 }
 
