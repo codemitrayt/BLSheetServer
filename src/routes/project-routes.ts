@@ -132,4 +132,20 @@ projectRouter.get(
   )
 );
 
+projectRouter.get(
+  "/getProjectsWithRole",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectController.getProjectsWithRole(req, res, next)
+  )
+);
+
+projectRouter.get(
+  "/getProjectWithMember",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectController.getProjectWithMember(req, res, next)
+  )
+);
+
 export default projectRouter;

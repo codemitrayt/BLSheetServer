@@ -22,6 +22,7 @@ import {
   InviteTeamMemberType,
   ObjectIdBody,
   Project,
+  ProjectMemberRole,
   ProjectMemberStatus,
   UpdateTeamMember,
 } from "../types";
@@ -110,6 +111,7 @@ class ProjectController {
       userId: userId as unknown as ObjectId,
       projectId: newProject._id as unknown as ObjectId,
       memberEmailId: user.email,
+      role: ProjectMemberRole.OWNER,
     });
 
     Labels.forEach(async (label) => {
@@ -394,6 +396,60 @@ class ProjectController {
     const labels = await this.projectService.getProjectLabels(projectId);
 
     return res.json({ message: labels });
+  }
+
+  async getProjectsWithRole(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req.userId as string;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    const projects = await this.projectMemberService.getProjectsWithRole(
+      user._id as string
+    );
+
+    return res.json({ message: { projects } });
+  }
+
+  async getProjectWithMember(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req.userId as string;
+    const projectId = req.query.projectId as string;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    const member =
+      await this.projectMemberService.findMemberByUserIdAndProjectId(
+        userId,
+        projectId
+      );
+    if (!member) {
+      return next(createHttpError(400, "Project member not found"));
+    }
+
+    const projectDetails = await this.projectMemberService.getProjectByMemberId(
+      member._id as unknown as string
+    );
+
+    return res.json({
+      message: {
+        projectDetails: {
+          _id: projectDetails.projectId,
+          memberId: projectDetails.memberId,
+          role: projectDetails.role,
+          ...projectDetails.project,
+          user: projectDetails.user,
+        },
+      },
+    });
   }
 }
 
