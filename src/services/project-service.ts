@@ -57,50 +57,6 @@ class ProjectService {
     return this.projectModel.find({ userId });
   }
 
-  async getProjectListFromUserProjectArray(
-    projects: ObjectId[],
-    userId: string
-  ) {
-    return await this.projectModel.aggregate([
-      {
-        $match: {
-          _id: { $in: projects },
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "user",
-        },
-      },
-      {
-        $unwind: "$user",
-      },
-      {
-        $project: {
-          _id: 1,
-          name: 1,
-          description: 1,
-          userId: 1,
-          tags: 1,
-          img: 1,
-          user: {
-            _id: "$user._id",
-            fullName: "$user.fullName",
-            email: "$user.email",
-          },
-        },
-      },
-      {
-        $addFields: {
-          isAdmin: { $eq: ["$user._id", new mongoose.Types.ObjectId(userId)] },
-        },
-      },
-    ]);
-  }
-
   async createProject(project: Project) {
     return this.projectModel.create(project);
   }

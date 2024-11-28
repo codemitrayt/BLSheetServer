@@ -236,6 +236,10 @@ class ProjectMemberService {
   async deleteMembers(projectId: string) {
     await this.projectMemberModel.deleteMany({ projectId });
   }
+
+  async getProjectMembersByProjectId(projectId: string) {
+    return await this.projectMemberModel.find({ projectId });
+  }
 }
 
 export default ProjectMemberService;

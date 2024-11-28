@@ -54,14 +54,6 @@ projectRouter.get(
   )
 );
 
-projectRouter.get(
-  "/getProjectList",
-  authenticateJWT,
-  asyncFnHandler((req, res, next) =>
-    projectController.getProjectList(req, res, next)
-  )
-);
-
 projectRouter.post(
   "/createProject",
   authenticateJWT,
