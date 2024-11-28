@@ -26,12 +26,19 @@ export type SendVerificationEmailForRegistrationBody = {
   email: string;
 };
 
+export enum PricingModel {
+  FREE = "free",
+  PREMIUM = "premium",
+  ENTERPRISE = "enterprise",
+}
+
 export interface User {
   fullName: string;
   email: string;
   password?: string;
   role?: UserRoleType;
   projects?: ObjectId[];
+  pricingModel?: PricingModel;
 }
 
 export interface Message {

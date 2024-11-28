@@ -27,6 +27,7 @@ import {
   ProjectMemberRole,
   ProjectMemberStatus,
   UpdateTeamMember,
+  PricingModel,
 } from "../types";
 import Labels from "../constants/labels";
 
@@ -63,32 +64,6 @@ class ProjectController {
     });
   }
 
-  async getProjectList(req: CustomRequest, res: Response, next: NextFunction) {
-    const userId = req.userId as string;
-
-    const user = await this.authService.findByUserId(userId);
-    if (!user) return next(createHttpError(401, "Unauthorized"));
-
-    if (!user.projects) {
-      return res.json({
-        message: {
-          projects: [],
-        },
-      });
-    }
-
-    const result = await this.projectService.getProjectListFromUserProjectArray(
-      user.projects,
-      userId
-    );
-
-    return res.json({
-      message: {
-        projects: result,
-      },
-    });
-  }
-
   async createProject(
     req: CustomRequest<Project>,
     res: Response,
@@ -103,6 +78,37 @@ class ProjectController {
 
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(401, "Unauthorized"));
+
+    const allProjects = await this.projectService.getProjectList(userId);
+
+    if (user.pricingModel === PricingModel.FREE && allProjects.length >= 1) {
+      return next(
+        createHttpError(
+          400,
+          "You can only create one project. Please upgrade your plan."
+        )
+      );
+    } else if (
+      user.pricingModel === PricingModel.PREMIUM &&
+      allProjects.length >= 10
+    ) {
+      return next(
+        createHttpError(
+          400,
+          "You can only create 10 project. Please upgrade your plan"
+        )
+      );
+    } else if (
+      user.pricingModel === PricingModel.ENTERPRISE &&
+      allProjects.length >= 25
+    ) {
+      return next(
+        createHttpError(
+          400,
+          "You can only create 25 project. Please contact support team"
+        )
+      );
+    }
 
     const newProject = await this.projectService.createProject({
       ...project,
@@ -195,7 +201,7 @@ class ProjectController {
         )
       );
     }
-    //TODO: delete related docs
+
     await this.projectMemberService.deleteMembers(projectId);
     await this.projectTaskService.deleteTasks(projectId);
     await this.issueService.deleteIssues(projectId);
@@ -217,6 +223,38 @@ class ProjectController {
 
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(401, "Unauthorized"));
+
+    const allMembers =
+      await this.projectMemberService.getProjectMembersByProjectId(projectId);
+
+    if (user.pricingModel === PricingModel.FREE && allMembers.length >= 5) {
+      return next(
+        createHttpError(
+          400,
+          "You can only invite 5 member. Please upgrade your plan."
+        )
+      );
+    } else if (
+      user.pricingModel === PricingModel.PREMIUM &&
+      allMembers.length >= 30
+    ) {
+      return next(
+        createHttpError(
+          400,
+          "You can only invite 30 members. Please upgrade your plan"
+        )
+      );
+    } else if (
+      user.pricingModel === PricingModel.ENTERPRISE &&
+      allMembers.length >= 150
+    ) {
+      return next(
+        createHttpError(
+          400,
+          "You can only invite 150 members. Please contact support team"
+        )
+      );
+    }
 
     if (email === user.email) {
       return next(createHttpError(400, "Can't invite yourself"));
