@@ -148,4 +148,12 @@ projectRouter.get(
   )
 );
 
+projectRouter.put(
+  "/updateProjectMemberRole",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectController.updateProjectMemberRole(req, res, next)
+  )
+);
+
 export default projectRouter;

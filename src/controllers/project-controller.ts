@@ -510,6 +510,54 @@ class ProjectController {
       },
     });
   }
+
+  async updateProjectMemberRole(
+    req: CustomRequest<{
+      memberId: string;
+      role: ProjectMemberRole;
+    }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req?.userId as string;
+    const { memberId, role } = req.body;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(401, "User not found"));
+
+    const member = await this.projectMemberService.getProjectMemberById(
+      memberId
+    );
+    if (!member) return next(createHttpError(404, "Member not found"));
+
+    const ownerMember =
+      await this.projectMemberService.findMemberByUserIdAndProjectId(
+        userId,
+        member.projectId as unknown as string
+      );
+    if (!ownerMember || ownerMember.role !== ProjectMemberRole.OWNER) {
+      return next(
+        createHttpError(
+          403,
+          "You do not have permission to update member details"
+        )
+      );
+    }
+
+    const updatedMember = await this.projectMemberService.updateProjectMember(
+      memberId,
+      {
+        status: member.status,
+        projectId: member.projectId,
+        memberEmailId: member.memberEmailId,
+        role,
+      }
+    );
+
+    return res.json({
+      message: { updatedMember, msg: "Member updated successfully" },
+    });
+  }
 }
 
 export default ProjectController;
