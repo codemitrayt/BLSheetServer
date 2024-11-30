@@ -76,10 +76,15 @@ class ProjectTaskController {
       );
     }
 
+    const taskNumber = await this.projectTaskService.getLastProjectTaskNumber(
+      projectTask.projectId as unknown as string
+    );
+
     /** Create project task */
     const newProjectTask = await this.projectTaskService.createProjectTask({
       ...projectTask,
       userId: userId as unknown as ObjectId,
+      taskNumber,
     });
 
     /** Socket event emit for create task */
@@ -94,6 +99,8 @@ class ProjectTaskController {
       priority: newProjectTask.priority,
       userId: newProjectTask.userId,
       projectId: newProjectTask.projectId,
+      taskNumber: newProjectTask.taskNumber,
+      taskType: newProjectTask.taskType,
       completedDate: null,
       subtasks: newProjectTask.subtasks,
       assignedMembers: [],

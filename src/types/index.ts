@@ -211,6 +211,8 @@ export interface ProjectTask {
   attachments?: ObjectId[];
   comments: ObjectId[];
   subtasks: string[];
+  taskType?: string;
+  taskNumber: number;
 }
 
 export interface GetProjectMemberQuery {

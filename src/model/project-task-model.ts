@@ -67,6 +67,15 @@ const projectTaskSchema = new mongoose.Schema(
       type: Array,
       required: false,
     },
+    taskType: {
+      type: String,
+      required: false,
+      default: "Bug Fix",
+    },
+    taskNumber: {
+      type: Number,
+      require: true,
+    },
   },
   { timestamps: true }
 );

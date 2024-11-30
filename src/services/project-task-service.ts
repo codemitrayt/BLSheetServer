@@ -59,6 +59,8 @@ class ProjectTaskService {
           attachments: 1,
           assignedMembers: 1,
           commentCount: 1,
+          taskNumber: 1,
+          taskType: 1,
           createdAt: 1,
           subtasks: 1,
           user: {
@@ -159,6 +161,8 @@ class ProjectTaskService {
           priority: 1,
           userId: 1,
           projectId: 1,
+          taskNumber: 1,
+          taskType: 1,
           completedDate: 1,
           attachments: 1,
           assignedMembers: 1,
@@ -410,6 +414,39 @@ class ProjectTaskService {
 
   async deleteTasks(projectId: string) {
     await this.projectTaskModel.deleteMany({ projectId });
+  }
+
+  async getLastProjectTaskNumber(projectId: string) {
+    const latestTask = await this.projectTaskModel
+      .findOne({ projectId })
+      .sort({ taskNumber: -1 })
+      .select("taskNumber")
+      .lean();
+
+    const nextTaskNumber = latestTask ? latestTask.taskNumber + 1 : 1;
+
+    return nextTaskNumber;
+  }
+
+  async distinct() {
+    const tasks = await this.projectTaskModel.distinct("projectId");
+    return tasks;
+  }
+
+  async find(projectId: string) {
+    const tasks = await this.projectTaskModel
+      .find({ projectId })
+      .sort({ createdAt: 1 })
+      .lean();
+    return tasks;
+  }
+
+  async updateOne(taskId: string, taskNumber: number) {
+    const tasks = await this.projectTaskModel.updateOne(
+      { _id: taskId },
+      { $set: { taskNumber } }
+    );
+    return tasks;
   }
 }
 
