@@ -651,6 +651,48 @@ class ProjectTaskController {
 
     return res.json({ message: { projectTaskComment: replies } });
   }
+
+  async getProjectTask(req: CustomRequest, res: Response, next: NextFunction) {
+    const userId = req.userId as string;
+    const { projectId, taskId } = req.query as unknown as {
+      projectId: string;
+      taskId: string;
+    };
+
+    this.logger.info({
+      event: EVENTS.GET_PROJECT_TASK,
+      data: { userId, projectId, taskId },
+    });
+
+    /** Check User */
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    /** Check Project */
+    const project = await this.projectService.getProjectById(
+      projectId as unknown as string,
+      userId
+    );
+    if (!project) return next(createHttpError(400, "Project not found"));
+
+    /** Check Member */
+    const member =
+      await this.projectMemberService.findMemberByUserIdAndProjectId(
+        userId,
+        projectId
+      );
+    if (!member) return next(createHttpError(400, "Member not found"));
+
+    /** Check Task */
+    const task = await this.projectTaskService.getProjectTaskDetails(
+      taskId,
+      member._id as unknown as string,
+      userId
+    );
+    if (!task) return next(createHttpError(400, "Task not found"));
+
+    return res.json({ message: { task } });
+  }
 }
 
 export default ProjectTaskController;

@@ -5,6 +5,87 @@ import { GetProjectTaskQuery, ProjectTask } from "../types";
 class ProjectTaskService {
   constructor(private projectTaskModel: typeof ProjectTaskModel) {}
 
+  async getProjectTaskDetails(
+    taskId: string,
+    memberId: string,
+    userId: string
+  ) {
+    const pipeline: PipelineStage[] = [
+      { $match: { _id: new mongoose.Types.ObjectId(taskId) } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $lookup: {
+          from: "projectmembers",
+          localField: "assignedTo",
+          foreignField: "_id",
+          as: "membersDetails",
+        },
+      },
+      {
+        $addFields: {
+          assignedMembers: {
+            $map: {
+              input: "$membersDetails",
+              as: "member",
+              in: {
+                _id: "$$member._id",
+                memberEmailId: "$$member.memberEmailId",
+              },
+            },
+          },
+          commentCount: { $size: "$comments" },
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          startDate: 1,
+          endDate: 1,
+          tags: 1,
+          status: 1,
+          priority: 1,
+          userId: 1,
+          projectId: 1,
+          completedDate: 1,
+          attachments: 1,
+          assignedMembers: 1,
+          commentCount: 1,
+          createdAt: 1,
+          subtasks: 1,
+          user: {
+            _id: "$user._id",
+            fullName: "$user.fullName",
+            email: "$user.email",
+          },
+        },
+      },
+      {
+        $addFields: {
+          isCreator: { $eq: ["$userId", new mongoose.Types.ObjectId(userId)] },
+          isMember: {
+            $in: [
+              new mongoose.Types.ObjectId(memberId),
+              "$assignedMembers._id",
+            ],
+          },
+        },
+      },
+    ];
+
+    const result = await this.projectTaskModel.aggregate(pipeline).exec();
+    if (result.length > 0) return result[0];
+    return null;
+  }
+
   async getProjectTasksByProjectId(
     projectId: string,
     userId: string,

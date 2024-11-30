@@ -37,6 +37,14 @@ const projectTaskController = new ProjectTaskController(
   logger
 );
 
+projectTaskRouter.get(
+  "/getProjectTask",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectTaskController.getProjectTask(req, res, next)
+  )
+);
+
 projectTaskRouter.post(
   "/createProjectTask",
   authenticateJWT,
