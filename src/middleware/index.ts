@@ -1,4 +1,5 @@
-import authenticateJwt from "./autenticate-jwt";
-import errorHandler from "./error-handler";
+import authenticateJwt from "./autenticateJwt.middleware";
+import errorHandler from "./errorHandler.middleware";
+import uploader from "./uploader.middleware";
 
-export { authenticateJwt, errorHandler };
+export { authenticateJwt, errorHandler, uploader };

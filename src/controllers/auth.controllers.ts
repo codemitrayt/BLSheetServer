@@ -10,6 +10,7 @@ import {
   NotificationService,
   TokenService,
   HashService,
+  UploadService,
 } from "../services";
 
 import { URLS } from "../constants";
@@ -29,6 +30,7 @@ class AuthController {
     private notificationService: NotificationService,
     private tokenService: TokenService,
     private hashService: HashService,
+    private uploadService: UploadService,
     private logger: Logger
   ) {}
 
@@ -288,6 +290,43 @@ class AuthController {
     });
 
     return res.json({ message: { user: existedUser, authToken: jwtToken } });
+  }
+
+  async uploadProfilePicture(
+    req: CustomRequest,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req.userId as string;
+
+    if (!req?.file?.path) {
+      return next(createHttpError(400, "No file uploaded"));
+    }
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(401, "Unauthorized"));
+
+    const uploadResult = await this.uploadService.upload(
+      req.file?.path as string
+    );
+
+    if (!uploadResult)
+      return next(createHttpError(400, "Error uploading profile picture"));
+
+    await this.authService.updateUserProfilePicture(userId, {
+      url: uploadResult.secure_url,
+      assetId: uploadResult.public_id,
+    });
+
+    return res.json({
+      message: {
+        avatar: {
+          url: uploadResult.secure_url,
+          assetId: uploadResult.public_id,
+        },
+        msg: "Profile picture updated successfully.",
+      },
+    });
   }
 }
 

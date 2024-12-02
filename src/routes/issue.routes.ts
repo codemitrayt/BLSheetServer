@@ -1,6 +1,6 @@
 import express from "express";
 
-import authenticateJWT from "../middleware/autenticate-jwt";
+import authenticateJWT from "../middleware/autenticateJwt.middleware";
 import asyncFnHandler from "../utils/async-fn-handler";
 import logger from "../config/logger";
 

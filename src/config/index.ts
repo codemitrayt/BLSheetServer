@@ -15,6 +15,9 @@ const {
   FRONTEND_URL,
   RESEND_API_KEY,
   WWW_FRONTEND_URL,
+  CLOUD_NAME,
+  API_KEY,
+  API_SECRET,
 } = process.env;
 
 const Config = {
@@ -31,6 +34,9 @@ const Config = {
   FRONTEND_URL,
   RESEND_API_KEY,
   WWW_FRONTEND_URL,
+  CLOUD_NAME,
+  API_KEY,
+  API_SECRET,
 };
 
 export default Config;

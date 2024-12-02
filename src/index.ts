@@ -6,7 +6,7 @@ import { Server } from "socket.io";
 import Config from "./config";
 import connectDB from "./config/db";
 import logger from "./config/logger";
-import errorHandler from "./middleware/error-handler";
+import { errorHandler } from "./middleware";
 
 import {
   authRoutes,

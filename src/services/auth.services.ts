@@ -53,6 +53,17 @@ class AuthService {
     );
   }
 
+  async updateUserProfilePicture(
+    userId: string,
+    avatar: { url: string; assetId: string }
+  ) {
+    return await this.userModel.findByIdAndUpdate(
+      userId,
+      { avatar },
+      { new: true }
+    );
+  }
+
   async removeProject(userId: string, projectId: string) {
     const result = await this.userModel.findByIdAndUpdate(
       { _id: new mongoose.Types.ObjectId(userId) },

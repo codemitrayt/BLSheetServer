@@ -10,6 +10,7 @@ import ProjectTaskService from "./task.services";
 import CommentService from "./comment.services";
 import IssueService from "./issue.services";
 import LableService from "./label.services";
+import UploadService from "./upload.services";
 
 export {
   AuthService,
@@ -24,4 +25,5 @@ export {
   CommentService,
   IssueService,
   LableService,
+  UploadService,
 };

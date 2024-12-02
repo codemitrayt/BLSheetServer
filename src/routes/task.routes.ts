@@ -17,7 +17,7 @@ import {
 } from "../model";
 import { ProjectTaskController } from "../controllers";
 import asyncFnHandler from "../utils/async-fn-handler";
-import authenticateJWT from "../middleware/autenticate-jwt";
+import authenticateJWT from "../middleware/autenticateJwt.middleware";
 import validators from "../validator";
 import logger from "../config/logger";
 

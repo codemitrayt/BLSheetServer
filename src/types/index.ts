@@ -39,6 +39,7 @@ export interface User {
   role?: UserRoleType;
   projects?: ObjectId[];
   pricingModel?: PricingModel;
+  avatar?: { url: string; assetId: string };
 }
 
 export interface Message {
