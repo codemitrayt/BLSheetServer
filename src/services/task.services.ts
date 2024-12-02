@@ -173,6 +173,7 @@ class ProjectTaskService {
             _id: "$user._id",
             fullName: "$user.fullName",
             email: "$user.email",
+            avatar: "$user.avatar",
           },
         },
       },
