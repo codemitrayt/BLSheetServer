@@ -1,9 +1,9 @@
-import AuthController from "./auth-controller";
-import BLSheetController from "./bl-sheet-controller";
-import TodoController from "./todo-controller";
-import ProjectController from "./project-controller";
-import ProjectTaskController from "./project-task-controller";
-import IssueController from "./issue-controller";
+import AuthController from "./auth.controllers";
+import BLSheetController from "./sheet.controllers";
+import TodoController from "./todo.controllers";
+import ProjectController from "./project.controllers";
+import ProjectTaskController from "./task.controllers";
+import IssueController from "./issue.controllers";
 
 export {
   AuthController,

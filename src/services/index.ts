@@ -1,15 +1,15 @@
-import AuthService from "./auth-service";
-import BLSheetService from "./bl-sheet-service";
-import TokenService from "./token-service";
-import HashService from "./hash-service";
-import NotificationService from "./notification-service";
-import TodoService from "./todo-service";
-import ProjectService from "./project-service";
-import ProjectMemberService from "./project-member-service";
-import ProjectTaskService from "./project-task-service";
-import CommentService from "./comment-service";
-import IssueService from "./issue-service";
-import LableService from "./label-service";
+import AuthService from "./auth.services";
+import BLSheetService from "./sheet.services";
+import TokenService from "./token.services";
+import HashService from "./hash.services";
+import NotificationService from "./notification.services";
+import TodoService from "./todo.services";
+import ProjectService from "./project.services";
+import ProjectMemberService from "./member.services";
+import ProjectTaskService from "./task.services";
+import CommentService from "./comment.services";
+import IssueService from "./issue.services";
+import LableService from "./label.services";
 
 export {
   AuthService,

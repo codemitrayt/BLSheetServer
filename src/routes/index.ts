@@ -1,9 +1,9 @@
-import authRoutes from "./auth-routes";
-import blSheetRoutes from "./bl-sheet-routes";
-import todoRoutes from "./todo-routes";
-import projectRouters from "./project-routes";
-import projectTaskRouters from "./project-task-routes";
-import issueRouters from "./issue-routes";
+import authRoutes from "./auth.routes";
+import blSheetRoutes from "./sheet.routes";
+import todoRoutes from "./todo.routes";
+import projectRouters from "./project.routes";
+import projectTaskRouters from "./task.routes";
+import issueRouters from "./issue.routes";
 
 export {
   authRoutes,
