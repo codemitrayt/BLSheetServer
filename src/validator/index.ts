@@ -23,7 +23,11 @@ import assignMemberToProjectTaskBodyValidator from "./validate-assign-member-to-
 import getProjectTaskQueryValidator from "./validate-project-task-query";
 import getIssuesQueryValidator from "./validate-get-issue-query";
 
+import fullNameValidator from "./auth/fullname.validator";
+
 const validators = {
+  fullNameValidator,
+
   loginUserBodyValidator,
   selfBodyValidator,
   forgotPasswordBodyValidator,

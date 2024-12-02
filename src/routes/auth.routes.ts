@@ -107,4 +107,13 @@ authRouter.post(
   )
 );
 
+authRouter.post(
+  "/updateFullName",
+  authenticateJwt,
+  validators.fullNameValidator,
+  asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
+    authController.updateFullName(req, res, next)
+  )
+);
+
 export default authRouter;

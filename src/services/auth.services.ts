@@ -72,6 +72,10 @@ class AuthService {
     );
     return result;
   }
+
+  async updateUser(userId: string, user: { fullName?: string }) {
+    return await this.userModel.findByIdAndUpdate(userId, user, { new: true });
+  }
 }
 
 export default AuthService;

@@ -328,6 +328,26 @@ class AuthController {
       },
     });
   }
+
+  async updateFullName(
+    req: CustomRequest<{ fullName: string }>,
+    res: Response,
+    next: NextFunction
+  ) {
+    const userId = req.userId as string;
+    const { fullName } = req.body;
+
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(401, "Unauthorized"));
+
+    await this.authService.updateUser(userId, {
+      fullName,
+    });
+
+    return res.json({
+      message: { fullName, msg: "User fullname updated successfully" },
+    });
+  }
 }
 
 export default AuthController;
