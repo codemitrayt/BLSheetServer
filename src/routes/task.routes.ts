@@ -3,6 +3,7 @@ import express from "express";
 import {
   AuthService,
   CommentService,
+  NotificationService,
   ProjectMemberService,
   ProjectService,
   ProjectTaskService,
@@ -27,6 +28,7 @@ const projectTaskService = new ProjectTaskService(ProjectTaskModel);
 const authService = new AuthService(UserModel);
 const projectMemberService = new ProjectMemberService(ProjectMemberModel);
 const commentService = new CommentService(CommentModel);
+const notificationService = new NotificationService();
 
 const projectTaskController = new ProjectTaskController(
   authService,
@@ -34,6 +36,7 @@ const projectTaskController = new ProjectTaskController(
   projectTaskService,
   projectMemberService,
   commentService,
+  notificationService,
   logger
 );
 

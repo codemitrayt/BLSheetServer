@@ -46,6 +46,7 @@ export interface Message {
   text: string;
   html?: string;
   subject?: string;
+  from?: string;
 }
 
 export interface JwtPayloadType extends JwtPayload {

@@ -4,10 +4,13 @@ import { validationResult } from "express-validator";
 import { Logger } from "winston";
 import createHttpError from "http-errors";
 
+import htmlTemplates from "../html";
+
 import { io } from "..";
 import {
   AuthService,
   CommentService,
+  NotificationService,
   ProjectMemberService,
   ProjectService,
   ProjectTaskService,
@@ -16,10 +19,12 @@ import {
   AssignUserToProjectTask,
   CustomRequest,
   GetProjectTaskQuery,
+  ProjectMemberRole,
   ProjectTask,
   ProjectTaskComment,
 } from "../types";
 import EVENTS from "../constants/events";
+import Config from "../config";
 
 class ProjectTaskController {
   constructor(
@@ -28,6 +33,7 @@ class ProjectTaskController {
     private projectTaskService: ProjectTaskService,
     private projectMemberService: ProjectMemberService,
     private commentService: CommentService,
+    private notificationService: NotificationService,
     private logger: Logger
   ) {}
 
@@ -276,6 +282,17 @@ class ProjectTaskController {
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(400, "User not found"));
 
+    const owner =
+      await this.projectMemberService.findMemberByUserIdAndProjectId(
+        userId,
+        projectId
+      );
+    if (owner?.role === ProjectMemberRole.MEMBER) {
+      return next(
+        createHttpError(403, "Only project owner and admin can assign members")
+      );
+    }
+
     /** Check project  */
     const project = await this.projectService.findProjectById(
       projectId as unknown as string
@@ -303,6 +320,25 @@ class ProjectTaskController {
       projectTask._id as unknown as string,
       projectMember._id as unknown as string
     );
+
+    const memberUser = await this.authService.findByUserId(
+      projectMember?.userId as unknown as string
+    );
+    if (!memberUser) {
+      return next(createHttpError(400, "Member user not found"));
+    }
+
+    await this.notificationService.send({
+      to: projectMember.memberEmailId,
+      from: `${user.fullName} via BL Sheet`,
+      text: "Send mail",
+      subject: `[${project.name} - ${projectTask.taskNumber}] New Task`,
+      html: htmlTemplates.taskAssignedNotification({
+        fullName: memberUser.fullName,
+        ownerName: user.fullName,
+        taskLink: `${Config.FRONTEND_URL}/dashboard/projects/${project._id}/tasks/${projectTask._id}`,
+      }),
+    });
 
     return res.json({ message: "Project task member assigned successfully" });
   }
