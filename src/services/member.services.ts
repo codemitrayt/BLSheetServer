@@ -50,6 +50,7 @@ class ProjectMemberService {
           memberEmailId: 1,
           user: {
             fullName: 1,
+            avatar: 1,
           },
           status: 1,
           isAdmin: 1,
