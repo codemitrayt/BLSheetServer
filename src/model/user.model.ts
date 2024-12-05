@@ -30,6 +30,14 @@ const userShecma = new Schema<CustomModel<User>>(
       enum: ["free", "premium", "enterprise"],
       default: "free",
     },
+
+    avatar: {
+      type: {
+        url: String,
+        assetId: String,
+      },
+      required: false,
+    },
   },
 
   { timestamps: true }

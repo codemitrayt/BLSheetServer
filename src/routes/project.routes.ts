@@ -1,7 +1,7 @@
 import express from "express";
 
 import asyncFnHandler from "../utils/async-fn-handler";
-import authenticateJWT from "../middleware/autenticate-jwt";
+import authenticateJWT from "../middleware/autenticateJwt.middleware";
 import validators from "../validator";
 
 import {
@@ -145,6 +145,14 @@ projectRouter.get(
   authenticateJWT,
   asyncFnHandler((req, res, next) =>
     projectController.getProjectWithMember(req, res, next)
+  )
+);
+
+projectRouter.put(
+  "/updateProjectMemberRole",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectController.updateProjectMemberRole(req, res, next)
   )
 );
 

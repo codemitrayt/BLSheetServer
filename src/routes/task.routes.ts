@@ -3,6 +3,7 @@ import express from "express";
 import {
   AuthService,
   CommentService,
+  NotificationService,
   ProjectMemberService,
   ProjectService,
   ProjectTaskService,
@@ -16,7 +17,7 @@ import {
 } from "../model";
 import { ProjectTaskController } from "../controllers";
 import asyncFnHandler from "../utils/async-fn-handler";
-import authenticateJWT from "../middleware/autenticate-jwt";
+import authenticateJWT from "../middleware/autenticateJwt.middleware";
 import validators from "../validator";
 import logger from "../config/logger";
 
@@ -27,6 +28,7 @@ const projectTaskService = new ProjectTaskService(ProjectTaskModel);
 const authService = new AuthService(UserModel);
 const projectMemberService = new ProjectMemberService(ProjectMemberModel);
 const commentService = new CommentService(CommentModel);
+const notificationService = new NotificationService();
 
 const projectTaskController = new ProjectTaskController(
   authService,
@@ -34,7 +36,16 @@ const projectTaskController = new ProjectTaskController(
   projectTaskService,
   projectMemberService,
   commentService,
+  notificationService,
   logger
+);
+
+projectTaskRouter.get(
+  "/getProjectTask",
+  authenticateJWT,
+  asyncFnHandler((req, res, next) =>
+    projectTaskController.getProjectTask(req, res, next)
+  )
 );
 
 projectTaskRouter.post(

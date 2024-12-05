@@ -39,6 +39,7 @@ export interface User {
   role?: UserRoleType;
   projects?: ObjectId[];
   pricingModel?: PricingModel;
+  avatar?: { url: string; assetId: string };
 }
 
 export interface Message {
@@ -46,6 +47,7 @@ export interface Message {
   text: string;
   html?: string;
   subject?: string;
+  from?: string;
 }
 
 export interface JwtPayloadType extends JwtPayload {
@@ -211,6 +213,8 @@ export interface ProjectTask {
   attachments?: ObjectId[];
   comments: ObjectId[];
   subtasks: string[];
+  taskType?: string;
+  taskNumber: number;
 }
 
 export interface GetProjectMemberQuery {

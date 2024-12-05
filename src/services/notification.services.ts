@@ -23,7 +23,9 @@ class NotificationService {
 
   async send(message: Message) {
     await this.transporter.sendMail({
-      from: Config.MAIL_FROM,
+      from: message?.from
+        ? `${message.from} <${Config.MAIL_USERNAME}>`
+        : Config.MAIL_FROM,
       to: message.to,
       subject: message.subject,
       text: message.text,

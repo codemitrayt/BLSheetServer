@@ -1,6 +1,11 @@
 import mongoose, { PipelineStage } from "mongoose";
 import { ProjectMemberModel } from "../model";
-import { GetProjectMemberQuery, ProjectMember } from "../types";
+import {
+  GetProjectMemberQuery,
+  ProjectMember,
+  ProjectMemberRole,
+  ProjectMemberStatus,
+} from "../types";
 
 class ProjectMemberService {
   constructor(private projectMemberModel: typeof ProjectMemberModel) {}
@@ -45,6 +50,7 @@ class ProjectMemberService {
           memberEmailId: 1,
           user: {
             fullName: 1,
+            avatar: 1,
           },
           status: 1,
           isAdmin: 1,
@@ -122,7 +128,12 @@ class ProjectMemberService {
 
   async getProjectsWithRole(userId: string) {
     const aggregationPipeline = [
-      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+          status: ProjectMemberStatus.ACCEPTED,
+        },
+      },
       {
         $lookup: {
           from: "projects",

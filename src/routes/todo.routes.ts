@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 
 import asyncFnHandler from "../utils/async-fn-handler";
-import authenticateJWT from "../middleware/autenticate-jwt";
+import authenticateJWT from "../middleware/autenticateJwt.middleware";
 
 import { TodoController } from "../controllers";
 import { AuthService, TodoService } from "../services";

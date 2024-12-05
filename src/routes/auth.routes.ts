@@ -4,13 +4,14 @@ import asyncFnHandler from "../utils/async-fn-handler";
 import validators from "../validator";
 import { UserModel } from "../model";
 import { AuthController } from "../controllers";
-import { authenticateJwt } from "../middleware";
+import { authenticateJwt, uploader } from "../middleware";
 import logger from "../config/logger";
 import {
   AuthService,
   NotificationService,
   TokenService,
   HashService,
+  UploadService,
 } from "../services";
 import {
   CreatePasswordBody,
@@ -26,11 +27,13 @@ const notificationService = new NotificationService();
 const authService = new AuthService(UserModel);
 const tokenService = new TokenService();
 const hashService = new HashService();
+const uploadService = new UploadService();
 const authController = new AuthController(
   authService,
   notificationService,
   tokenService,
   hashService,
+  uploadService,
   logger
 );
 
@@ -92,6 +95,24 @@ authRouter.post(
       res,
       next
     )
+  )
+);
+
+authRouter.post(
+  "/uploadProfilePicture",
+  authenticateJwt,
+  uploader.single("avatar"),
+  asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
+    authController.uploadProfilePicture(req as CustomRequest, res, next)
+  )
+);
+
+authRouter.post(
+  "/updateFullName",
+  authenticateJwt,
+  validators.fullNameValidator,
+  asyncFnHandler((req: Request, res: Response, next: NextFunction) =>
+    authController.updateFullName(req, res, next)
   )
 );
 

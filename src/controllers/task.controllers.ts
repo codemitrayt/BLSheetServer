@@ -4,10 +4,13 @@ import { validationResult } from "express-validator";
 import { Logger } from "winston";
 import createHttpError from "http-errors";
 
+import htmlTemplates from "../html";
+
 import { io } from "..";
 import {
   AuthService,
   CommentService,
+  NotificationService,
   ProjectMemberService,
   ProjectService,
   ProjectTaskService,
@@ -16,10 +19,12 @@ import {
   AssignUserToProjectTask,
   CustomRequest,
   GetProjectTaskQuery,
+  ProjectMemberRole,
   ProjectTask,
   ProjectTaskComment,
 } from "../types";
 import EVENTS from "../constants/events";
+import Config from "../config";
 
 class ProjectTaskController {
   constructor(
@@ -28,6 +33,7 @@ class ProjectTaskController {
     private projectTaskService: ProjectTaskService,
     private projectMemberService: ProjectMemberService,
     private commentService: CommentService,
+    private notificationService: NotificationService,
     private logger: Logger
   ) {}
 
@@ -76,10 +82,15 @@ class ProjectTaskController {
       );
     }
 
+    const taskNumber = await this.projectTaskService.getLastProjectTaskNumber(
+      projectTask.projectId as unknown as string
+    );
+
     /** Create project task */
     const newProjectTask = await this.projectTaskService.createProjectTask({
       ...projectTask,
       userId: userId as unknown as ObjectId,
+      taskNumber,
     });
 
     /** Socket event emit for create task */
@@ -94,6 +105,8 @@ class ProjectTaskController {
       priority: newProjectTask.priority,
       userId: newProjectTask.userId,
       projectId: newProjectTask.projectId,
+      taskNumber: newProjectTask.taskNumber,
+      taskType: newProjectTask.taskType,
       completedDate: null,
       subtasks: newProjectTask.subtasks,
       assignedMembers: [],
@@ -269,6 +282,17 @@ class ProjectTaskController {
     const user = await this.authService.findByUserId(userId);
     if (!user) return next(createHttpError(400, "User not found"));
 
+    const owner =
+      await this.projectMemberService.findMemberByUserIdAndProjectId(
+        userId,
+        projectId
+      );
+    if (owner?.role === ProjectMemberRole.MEMBER) {
+      return next(
+        createHttpError(403, "Only project owner and admin can assign members")
+      );
+    }
+
     /** Check project  */
     const project = await this.projectService.findProjectById(
       projectId as unknown as string
@@ -296,6 +320,25 @@ class ProjectTaskController {
       projectTask._id as unknown as string,
       projectMember._id as unknown as string
     );
+
+    const memberUser = await this.authService.findByUserId(
+      projectMember?.userId as unknown as string
+    );
+    if (!memberUser) {
+      return next(createHttpError(400, "Member user not found"));
+    }
+
+    await this.notificationService.send({
+      to: projectMember.memberEmailId,
+      from: `${user.fullName} via BL Sheet`,
+      text: "Send mail",
+      subject: `[${project.name} - ${projectTask.taskNumber}] New Task`,
+      html: htmlTemplates.taskAssignedNotification({
+        fullName: memberUser.fullName,
+        ownerName: user.fullName,
+        taskLink: `${Config.FRONTEND_URL}/dashboard/projects/${project._id}/tasks/${projectTask._id}`,
+      }),
+    });
 
     return res.json({ message: "Project task member assigned successfully" });
   }
@@ -470,10 +513,17 @@ class ProjectTaskController {
     const comment = await this.commentService.getCommentById(commentId);
     if (!comment) return next(createHttpError(400, "Comment not found"));
 
+    const member =
+      await this.projectMemberService.findMemberByUserIdAndProjectId(
+        userId,
+        projectId
+      );
+    if (!member) return next(createHttpError(404, "Member not found"));
+
     /** Check Permission */
     if (
       comment.userId.toString() !== userId &&
-      project.userId.toString() !== userId
+      member.role === ProjectMemberRole.MEMBER
     ) {
       return next(
         createHttpError(
@@ -530,8 +580,18 @@ class ProjectTaskController {
     const project = await this.projectService.getProjectById(projectId, userId);
     if (!project) return next(createHttpError(400, "Project not found"));
 
+    const member =
+      await this.projectMemberService.findMemberByUserIdAndProjectId(
+        userId,
+        projectId
+      );
+    if (!member) return next(createHttpError(404, "Member not found"));
+
     /** Check permission  */
-    if (comment.userId.toString() !== userId && !project.isAdmin) {
+    if (
+      comment.userId.toString() !== userId &&
+      member.role === ProjectMemberRole.MEMBER
+    ) {
       return next(
         createHttpError(
           403,
@@ -650,6 +710,48 @@ class ProjectTaskController {
     const replies = await this.commentService.getReplies(commentId, userId);
 
     return res.json({ message: { projectTaskComment: replies } });
+  }
+
+  async getProjectTask(req: CustomRequest, res: Response, next: NextFunction) {
+    const userId = req.userId as string;
+    const { projectId, taskId } = req.query as unknown as {
+      projectId: string;
+      taskId: string;
+    };
+
+    this.logger.info({
+      event: EVENTS.GET_PROJECT_TASK,
+      data: { userId, projectId, taskId },
+    });
+
+    /** Check User */
+    const user = await this.authService.findByUserId(userId);
+    if (!user) return next(createHttpError(400, "User not found"));
+
+    /** Check Project */
+    const project = await this.projectService.getProjectById(
+      projectId as unknown as string,
+      userId
+    );
+    if (!project) return next(createHttpError(400, "Project not found"));
+
+    /** Check Member */
+    const member =
+      await this.projectMemberService.findMemberByUserIdAndProjectId(
+        userId,
+        projectId
+      );
+    if (!member) return next(createHttpError(400, "Member not found"));
+
+    /** Check Task */
+    const task = await this.projectTaskService.getProjectTaskDetails(
+      taskId,
+      member._id as unknown as string,
+      userId
+    );
+    if (!task) return next(createHttpError(400, "Task not found"));
+
+    return res.json({ message: { task } });
   }
 }
 
